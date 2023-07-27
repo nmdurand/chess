@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { PieceData, PieceName } from '@/context/context'
+import { PieceColor, PieceData, PieceName } from '@/context/context'
 import {
   faChessBishop,
   faChessKing,
@@ -24,7 +24,9 @@ export const Piece: FC<PieceData> = ({ name, color }) => {
     <FontAwesomeIcon
       icon={ICON_NAMES[name]}
       inverse
-      className={`w-10 h-10 ${color === 'black' ? 'text-black' : 'text-white'}`}
+      className={`w-10 h-10 ${
+        color === PieceColor.Black ? 'text-black' : 'text-white'
+      }`}
     />
   )
 }
