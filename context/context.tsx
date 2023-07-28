@@ -26,6 +26,7 @@ type BoardData = (PieceData | undefined)[][]
 interface ChessContextType {
   context: {
     board: BoardData
+    boardHistory: BoardData[]
     currentTurn: number
     touchedPiece: PieceData | null
   }
@@ -35,6 +36,7 @@ interface ChessContextType {
 export const ChessContext = React.createContext<ChessContextType>({
   context: {
     board: new Array(8).fill(new Array(8)),
+    boardHistory: [],
     currentTurn: 0,
     touchedPiece: null,
   },
@@ -102,10 +104,17 @@ type BoardActionType =
         to: { row: number; col: number }
       }
     }
+  | {
+      type: 'REWIND_HISTORY'
+    }
+  | {
+      type: 'FORWARD_HISTORY'
+    }
 
 const contextReducer = (
   context: {
     board: BoardData
+    boardHistory: BoardData[]
     currentTurn: number
     touchedPiece: PieceData | null
   },
@@ -119,14 +128,36 @@ const contextReducer = (
         touchedPiece: piece,
       }
     case 'MOVE_PIECE':
-      const newBoard = [...context.board]
+      const { board, boardHistory } = context
+      const newBoard = JSON.parse(JSON.stringify(board))
       const { from, to } = action.payload
       newBoard[to.row][to.col] = newBoard[from.row][from.col]
       newBoard[from.row][from.col] = undefined
       return {
         board: newBoard,
+        boardHistory: [
+          ...boardHistory.slice(0, context.currentTurn + 1),
+          newBoard,
+        ],
         currentTurn: context.currentTurn + 1,
         touchedPiece: null,
+      }
+    case 'REWIND_HISTORY':
+      const prevBoard = context.boardHistory[context.currentTurn - 1]
+      return {
+        ...context,
+        board: prevBoard,
+        currentTurn: context.currentTurn - 1,
+      }
+    case 'FORWARD_HISTORY':
+      if (context.currentTurn === context.boardHistory.length - 1) {
+        return context
+      }
+      const nextBoard = context.boardHistory[context.currentTurn + 1]
+      return {
+        ...context,
+        board: nextBoard,
+        currentTurn: context.currentTurn + 1,
       }
     default:
       return context
@@ -138,6 +169,7 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
 }) => {
   const [context, dispatch] = React.useReducer(contextReducer, {
     board: INITIAL_BOARD_DATA,
+    boardHistory: [INITIAL_BOARD_DATA],
     currentTurn: 0,
     touchedPiece: null,
   })
