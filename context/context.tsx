@@ -1,6 +1,6 @@
 'use client'
 
-import React, { FC, ReactNode, useState } from 'react'
+import React, { FC, ReactNode } from 'react'
 
 export enum PieceColor {
   Black = 'black',
@@ -24,21 +24,21 @@ export interface PieceData {
 type BoardData = (PieceData | undefined)[][]
 
 interface ChessContextType {
-  board: BoardData
-  currentTurn: number
-  movingPiece: PieceData | null
+  context: {
+    board: BoardData
+    currentTurn: number
+    touchedPiece: PieceData | null
+  }
   dispatch: React.Dispatch<BoardActionType>
-  setCurrentTurn: React.Dispatch<React.SetStateAction<number>>
-  setMovingPiece: React.Dispatch<React.SetStateAction<PieceData | null>>
 }
 
 export const ChessContext = React.createContext<ChessContextType>({
-  board: new Array(8).fill(new Array(8)),
-  currentTurn: 0,
-  movingPiece: null,
+  context: {
+    board: new Array(8).fill(new Array(8)),
+    currentTurn: 0,
+    touchedPiece: null,
+  },
   dispatch: () => {},
-  setCurrentTurn: () => {},
-  setMovingPiece: () => {},
 })
 
 export const INITIAL_BOARD_DATA = [
@@ -88,43 +88,65 @@ export const INITIAL_BOARD_DATA = [
   ],
 ]
 
-type BoardActionType = {
-  type: 'MOVE_PIECE'
-  payload: {
-    from: { row: number; col: number }
-    to: { row: number; col: number }
-  }
-}
+type BoardActionType =
+  | {
+      type: 'TOUCH_PIECE'
+      payload: {
+        piece: PieceData | null
+      }
+    }
+  | {
+      type: 'MOVE_PIECE'
+      payload: {
+        from: { row: number; col: number }
+        to: { row: number; col: number }
+      }
+    }
 
-const boardReducer = (board: BoardData, action: BoardActionType) => {
+const contextReducer = (
+  context: {
+    board: BoardData
+    currentTurn: number
+    touchedPiece: PieceData | null
+  },
+  action: BoardActionType
+) => {
   switch (action.type) {
+    case 'TOUCH_PIECE':
+      const piece = action.payload.piece
+      return {
+        ...context,
+        touchedPiece: piece,
+      }
     case 'MOVE_PIECE':
-      const newBoard = [...board]
+      const newBoard = [...context.board]
       const { from, to } = action.payload
       newBoard[to.row][to.col] = newBoard[from.row][from.col]
       newBoard[from.row][from.col] = undefined
-      return newBoard
+      return {
+        board: newBoard,
+        currentTurn: context.currentTurn + 1,
+        touchedPiece: null,
+      }
     default:
-      return board
+      return context
   }
 }
 
 export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
   children,
 }) => {
-  const [board, dispatch] = React.useReducer(boardReducer, INITIAL_BOARD_DATA)
-  const [currentTurn, setCurrentTurn] = useState(0)
-  const [movingPiece, setMovingPiece] = useState<PieceData | null>(null)
+  const [context, dispatch] = React.useReducer(contextReducer, {
+    board: INITIAL_BOARD_DATA,
+    currentTurn: 0,
+    touchedPiece: null,
+  })
 
   return (
     <ChessContext.Provider
       value={{
-        board,
-        currentTurn,
-        movingPiece,
+        context,
         dispatch,
-        setCurrentTurn,
-        setMovingPiece,
       }}
     >
       {children}

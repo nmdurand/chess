@@ -6,12 +6,21 @@ import { ChessContext } from '@/context/context'
 const ROW_COL_REGEX = /-(\d+)-(\d+)/
 
 export const Board: FC = () => {
-  const { movingPiece, dispatch, setMovingPiece } = useContext(ChessContext)
+  const { dispatch } = useContext(ChessContext)
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDragStart = (event: any) => {
+    const { current } = event?.active?.data
+    dispatch({
+      type: 'TOUCH_PIECE',
+      payload: {
+        piece: current,
+      },
+    })
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDragEnd = (event: any) => {
-    console.log('>>>>> Drag end for piece:', movingPiece)
-    setMovingPiece(null)
     const { active, over } = event
     if (!over) return
     if (active.id !== over.id) {
@@ -25,12 +34,6 @@ export const Board: FC = () => {
         },
       })
     }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleDragStart = (event: any) => {
-    const { current } = event?.active?.data
-    setMovingPiece(current)
   }
 
   return (

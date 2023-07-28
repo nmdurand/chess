@@ -1,5 +1,10 @@
-import { FC } from 'react'
-import { PieceColor, PieceData, PieceName } from '@/context/context'
+import { FC, useContext } from 'react'
+import {
+  ChessContext,
+  PieceColor,
+  PieceData,
+  PieceName,
+} from '@/context/context'
 import {
   faChessBishop,
   faChessKing,
