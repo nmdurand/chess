@@ -1,6 +1,7 @@
 import { FC, useContext } from 'react'
-import { ChessContext, PieceColor } from '@/context/context'
+import { ChessContext } from '@/context/context'
 import { Piece } from './Piece'
+import { useDroppable } from '@dnd-kit/core'
 
 interface ISquare {
   row: number
@@ -8,7 +9,10 @@ interface ISquare {
 }
 
 export const Square: FC<ISquare> = ({ row, col }) => {
-  const { board, dispatch } = useContext(ChessContext)
+  const { board } = useContext(ChessContext)
+  const { isOver, setNodeRef } = useDroppable({
+    id: `square-${row}-${col}`,
+  })
 
   const { name, color } = board[row][col] || {}
 
@@ -16,18 +20,12 @@ export const Square: FC<ISquare> = ({ row, col }) => {
     <div
       className={`w-16 h-16 flex items-center justify-center border border-black ${
         (row + col) % 2 === 0 ? 'bg-zinc-400' : 'bg-slate-600'
-      }`}
-      onClick={() => {
-        dispatch({
-          type: 'MOVE_PIECE',
-          payload: {
-            from: { row, col },
-            to: { row: row + (color === PieceColor.White ? 1 : -1), col: col },
-          },
-        })
-      }}
+      } ${isOver ? 'bg-green-400' : ''}`}
+      ref={setNodeRef}
     >
-      {name && color && <Piece name={name} color={color} />}
+      {name && color && (
+        <Piece name={name} color={color} id={`piece-${row}-${col}`} />
+      )}
     </div>
   )
 }
