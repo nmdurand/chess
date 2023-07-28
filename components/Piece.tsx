@@ -28,8 +28,8 @@ const ICON_NAMES = {
 type IPiece = PieceData & { id: string }
 
 export const Piece: FC<IPiece> = ({ name, color, id }) => {
-  const { context } = useContext(ChessContext)
-  const { currentTurn } = context
+  const { state } = useContext(ChessContext)
+  const { currentTurn } = state
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     disabled:

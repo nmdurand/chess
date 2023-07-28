@@ -9,8 +9,8 @@ interface ISquare {
 }
 
 export const Square: FC<ISquare> = ({ row, col }) => {
-  const { context } = useContext(ChessContext)
-  const { board } = context
+  const { state } = useContext(ChessContext)
+  const { board } = state
   const { isOver, setNodeRef } = useDroppable({
     id: `square-${row}-${col}`,
   })

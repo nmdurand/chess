@@ -24,7 +24,7 @@ export interface PieceData {
 type BoardData = (PieceData | undefined)[][]
 
 interface ChessContextType {
-  context: {
+  state: {
     board: BoardData
     boardHistory: BoardData[]
     currentTurn: number
@@ -34,7 +34,7 @@ interface ChessContextType {
 }
 
 export const ChessContext = React.createContext<ChessContextType>({
-  context: {
+  state: {
     board: new Array(8).fill(new Array(8)),
     boardHistory: [],
     currentTurn: 0,
@@ -112,7 +112,7 @@ type BoardActionType =
     }
 
 const contextReducer = (
-  context: {
+  state: {
     board: BoardData
     boardHistory: BoardData[]
     currentTurn: number
@@ -124,11 +124,11 @@ const contextReducer = (
     case 'TOUCH_PIECE':
       const piece = action.payload.piece
       return {
-        ...context,
+        ...state,
         touchedPiece: piece,
       }
     case 'MOVE_PIECE':
-      const { board, boardHistory } = context
+      const { board, boardHistory } = state
       const newBoard = JSON.parse(JSON.stringify(board))
       const { from, to } = action.payload
       newBoard[to.row][to.col] = newBoard[from.row][from.col]
@@ -136,38 +136,38 @@ const contextReducer = (
       return {
         board: newBoard,
         boardHistory: [
-          ...boardHistory.slice(0, context.currentTurn + 1),
+          ...boardHistory.slice(0, state.currentTurn + 1),
           newBoard,
         ],
-        currentTurn: context.currentTurn + 1,
+        currentTurn: state.currentTurn + 1,
         touchedPiece: null,
       }
     case 'REWIND_HISTORY':
-      const prevBoard = context.boardHistory[context.currentTurn - 1]
+      const prevBoard = state.boardHistory[state.currentTurn - 1]
       return {
-        ...context,
+        ...state,
         board: prevBoard,
-        currentTurn: context.currentTurn - 1,
+        currentTurn: state.currentTurn - 1,
       }
     case 'FORWARD_HISTORY':
-      if (context.currentTurn === context.boardHistory.length - 1) {
-        return context
+      if (state.currentTurn === state.boardHistory.length - 1) {
+        return state
       }
-      const nextBoard = context.boardHistory[context.currentTurn + 1]
+      const nextBoard = state.boardHistory[state.currentTurn + 1]
       return {
-        ...context,
+        ...state,
         board: nextBoard,
-        currentTurn: context.currentTurn + 1,
+        currentTurn: state.currentTurn + 1,
       }
     default:
-      return context
+      return state
   }
 }
 
 export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
   children,
 }) => {
-  const [context, dispatch] = React.useReducer(contextReducer, {
+  const [state, dispatch] = React.useReducer(contextReducer, {
     board: INITIAL_BOARD_DATA,
     boardHistory: [INITIAL_BOARD_DATA],
     currentTurn: 0,
@@ -177,7 +177,7 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
   return (
     <ChessContext.Provider
       value={{
-        context,
+        state,
         dispatch,
       }}
     >

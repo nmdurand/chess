@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export const GameDetails: FC = () => {
-  const { context, dispatch } = useContext(ChessContext)
-  const { currentTurn } = context
+  const { state, dispatch } = useContext(ChessContext)
+  const { currentTurn, boardHistory } = state
 
   const rewindHistory = () => {
     dispatch({ type: 'REWIND_HISTORY' })
@@ -26,9 +26,9 @@ export const GameDetails: FC = () => {
             />
           )}
         </div>
-        <span>Turn: {context.currentTurn}</span>
+        <span>Turn: {currentTurn}</span>
         <div className="flex align-center justify-center">
-          {currentTurn < context.boardHistory.length - 1 && (
+          {currentTurn < boardHistory.length - 1 && (
             <FontAwesomeIcon
               className="w-6 h-6 text-center"
               icon={faArrowRight}
@@ -38,10 +38,7 @@ export const GameDetails: FC = () => {
         </div>
       </div>
       <div>
-        (
-        {`${
-          context.currentTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
-        }`}{' '}
+        ({`${currentTurn % 2 === 0 ? PieceColor.White : PieceColor.Black}`}{' '}
         play)
       </div>
     </div>
