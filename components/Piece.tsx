@@ -25,6 +25,7 @@ type IPiece = PieceData & { id: string }
 export const Piece: FC<IPiece> = ({ name, color, id }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: id,
+    data: { name, color },
   })
   const style = transform
     ? {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { FC, ReactNode } from 'react'
+import React, { FC, ReactNode, useState } from 'react'
 
 export enum PieceColor {
   Black = 'black',
@@ -25,12 +25,20 @@ type BoardData = (PieceData | undefined)[][]
 
 interface ChessContextType {
   board: BoardData
+  currentTurn: number
+  movingPiece: PieceData | null
   dispatch: React.Dispatch<BoardActionType>
+  setCurrentTurn: React.Dispatch<React.SetStateAction<number>>
+  setMovingPiece: React.Dispatch<React.SetStateAction<PieceData | null>>
 }
 
 export const ChessContext = React.createContext<ChessContextType>({
   board: new Array(8).fill(new Array(8)),
+  currentTurn: 0,
+  movingPiece: null,
   dispatch: () => {},
+  setCurrentTurn: () => {},
+  setMovingPiece: () => {},
 })
 
 export const INITIAL_BOARD_DATA = [
@@ -105,9 +113,20 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
   children,
 }) => {
   const [board, dispatch] = React.useReducer(boardReducer, INITIAL_BOARD_DATA)
+  const [currentTurn, setCurrentTurn] = useState(0)
+  const [movingPiece, setMovingPiece] = useState<PieceData | null>(null)
 
   return (
-    <ChessContext.Provider value={{ board, dispatch }}>
+    <ChessContext.Provider
+      value={{
+        board,
+        currentTurn,
+        movingPiece,
+        dispatch,
+        setCurrentTurn,
+        setMovingPiece,
+      }}
+    >
       {children}
     </ChessContext.Provider>
   )
