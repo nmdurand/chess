@@ -25,7 +25,7 @@ export const Board: FC = () => {
   }
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext onDragEnd={handleDragEnd} id={'dnd-context'}>
       <div className="flex flex-col">
         {Array.from(Array(8).keys()).map((i) => (
           <div className="flex" key={`row-${i}`}>
