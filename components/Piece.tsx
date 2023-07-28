@@ -28,7 +28,13 @@ const ICON_NAMES = {
 type IPiece = PieceData & { id: string }
 
 export const Piece: FC<IPiece> = ({ name, color, id }) => {
+  const { context } = useContext(ChessContext)
+  const { currentTurn } = context
+
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    disabled:
+      (color === PieceColor.White && currentTurn % 2 === 1) ||
+      (color === PieceColor.Black && currentTurn % 2 === 0),
     id: id,
     data: { name, color },
   })
