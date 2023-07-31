@@ -1,30 +1,7 @@
 'use client'
 
+import { PieceColor, PieceData, PieceName, SquareData } from '@/lib/types'
 import React, { FC, ReactNode } from 'react'
-
-export enum PieceColor {
-  Black = 'black',
-  White = 'white',
-}
-
-export enum PieceName {
-  Pawn = 'pawn',
-  Rook = 'rook',
-  Knight = 'knight',
-  Bishop = 'bishop',
-  Queen = 'queen',
-  King = 'king',
-}
-
-export interface PieceData {
-  name: PieceName
-  color: PieceColor
-}
-
-interface SquareData {
-  row: number
-  col: number
-}
 
 type BoardData = (PieceData | undefined)[][]
 

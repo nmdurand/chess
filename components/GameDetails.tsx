@@ -1,5 +1,6 @@
 import { FC, useContext } from 'react'
-import { ChessContext, PieceColor } from '@/context/context'
+import { ChessContext } from '@/context/context'
+import { PieceColor } from '@/lib/types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
