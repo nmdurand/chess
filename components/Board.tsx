@@ -11,10 +11,17 @@ export const Board: FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDragStart = (event: any) => {
     const { current } = event?.active?.data
+    const { name, color, id } = current
+    const [, rawRow, rawCol] = id.match(ROW_COL_REGEX)
+    const row = parseInt(rawRow, 10)
+    const col = parseInt(rawCol, 10)
     dispatch({
       type: 'TOUCH_PIECE',
       payload: {
-        piece: current,
+        name,
+        color,
+        row,
+        col,
       },
     })
   }

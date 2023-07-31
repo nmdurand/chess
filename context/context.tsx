@@ -21,6 +21,11 @@ export interface PieceData {
   color: PieceColor
 }
 
+interface SquareData {
+  row: number
+  col: number
+}
+
 type BoardData = (PieceData | undefined)[][]
 
 interface ChessContextType {
@@ -28,7 +33,7 @@ interface ChessContextType {
     board: BoardData
     boardHistory: BoardData[]
     currentTurn: number
-    touchedPiece: PieceData | null
+    touchedPiece: (PieceData & SquareData) | null
   }
   dispatch: React.Dispatch<BoardActionType>
 }
@@ -94,7 +99,10 @@ type BoardActionType =
   | {
       type: 'TOUCH_PIECE'
       payload: {
-        piece: PieceData | null
+        name: PieceName
+        color: PieceColor
+        row: number
+        col: number
       }
     }
   | {
@@ -116,16 +124,16 @@ const contextReducer = (
     board: BoardData
     boardHistory: BoardData[]
     currentTurn: number
-    touchedPiece: PieceData | null
+    touchedPiece: (PieceData & SquareData) | null
   },
   action: BoardActionType
 ) => {
   switch (action.type) {
     case 'TOUCH_PIECE':
-      const piece = action.payload.piece
+      const pieceAndSquareData = action.payload
       return {
         ...state,
-        touchedPiece: piece,
+        touchedPiece: pieceAndSquareData,
       }
     case 'MOVE_PIECE':
       const { board, boardHistory } = state

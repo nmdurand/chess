@@ -36,7 +36,7 @@ export const Piece: FC<IPiece> = ({ name, color, id }) => {
       (color === PieceColor.White && currentTurn % 2 === 1) ||
       (color === PieceColor.Black && currentTurn % 2 === 0),
     id: id,
-    data: { name, color },
+    data: { name, color, id },
   })
   const style = transform
     ? {
