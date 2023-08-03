@@ -34,21 +34,21 @@ const isPawnDroppable = (
 ): boolean => {
   const { color, row: fromRow, col: fromCol } = touchedPiece
   switch (color) {
-    case PieceColor.White:
+    case PieceColor.Black:
       return (
         (col === fromCol &&
           (row === fromRow + 1 || (fromRow === 1 && row === 3))) ||
         (Math.abs(col - fromCol) === 1 &&
           row === fromRow + 1 &&
-          board[row][col]?.color === PieceColor.Black)
+          board[row][col]?.color === PieceColor.White)
       )
-    case PieceColor.Black:
+    case PieceColor.White:
       return (
         (col === fromCol &&
           (row === fromRow - 1 || (fromRow === 6 && row === 4))) ||
         (Math.abs(col - fromCol) === 1 &&
           row === fromRow - 1 &&
-          board[row][col]?.color === PieceColor.White)
+          board[row][col]?.color === PieceColor.Black)
       )
     default:
       return false
