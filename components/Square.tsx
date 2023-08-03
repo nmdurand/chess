@@ -14,7 +14,7 @@ export const Square: FC<ISquare> = ({ row, col }) => {
   const { board, touchedPiece } = state
   const { name, color } = board[row][col] || {}
 
-  const isPieceDroppable = isDroppable(touchedPiece, { row, col })
+  const isPieceDroppable = isDroppable(touchedPiece, { row, col }, board)
 
   const { isOver, setNodeRef } = useDroppable({
     id: `square-${row}-${col}`,

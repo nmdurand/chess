@@ -3,7 +3,7 @@
 import { PieceColor, PieceData, PieceName, SquareData } from '@/lib/types'
 import React, { FC, ReactNode } from 'react'
 
-type BoardData = (PieceData | undefined)[][]
+export type BoardData = (PieceData | undefined)[][]
 
 interface ChessContextType {
   state: {
