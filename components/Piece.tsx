@@ -45,7 +45,7 @@ export const Piece: FC<IPiece> = ({ name, color, id }) => {
       <FontAwesomeIcon
         icon={ICON_NAMES[name]}
         inverse
-        className={`w-10 h-10 ${
+        className={`flex w-10 h-10 ${
           color === PieceColor.Black ? 'text-black' : 'text-white'
         }`}
       />

@@ -28,7 +28,7 @@ export const isDroppable = (
   }
 }
 
-const isMenaced = (
+export const isMenaced = (
   target: SquareData,
   color: PieceColor,
   board: BoardData

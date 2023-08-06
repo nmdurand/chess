@@ -1,6 +1,7 @@
 'use client'
 
 import { PieceColor, PieceData, PieceName, SquareData } from '@/lib/types'
+import { isInCheck } from '@/lib/isInCheck'
 import React, { FC, ReactNode } from 'react'
 
 export type BoardData = (PieceData | undefined)[][]
@@ -11,6 +12,7 @@ interface ChessContextType {
     boardHistory: BoardData[]
     currentTurn: number
     touchedPiece: (PieceData & SquareData) | null
+    isInCheck: PieceColor | null
   }
   dispatch: React.Dispatch<BoardActionType>
 }
@@ -21,6 +23,7 @@ export const ChessContext = React.createContext<ChessContextType>({
     boardHistory: [],
     currentTurn: 0,
     touchedPiece: null,
+    isInCheck: null,
   },
   dispatch: () => {},
 })
@@ -118,8 +121,20 @@ const contextReducer = (
       const { from, to } = action.payload
       newBoard[to.row][to.col] = newBoard[from.row][from.col]
       newBoard[from.row][from.col] = undefined
+
+      let newIsInCheck = null
+      const isWhiteInCheck = isInCheck(PieceColor.White, newBoard)
+      if (isWhiteInCheck) {
+        newIsInCheck = PieceColor.White
+      }
+      const isBlackInCheck = isInCheck(PieceColor.Black, newBoard)
+      if (isBlackInCheck) {
+        newIsInCheck = PieceColor.White
+      }
+
       return {
         board: newBoard,
+        isInCheck: newIsInCheck,
         boardHistory: [
           ...boardHistory.slice(0, state.currentTurn + 1),
           newBoard,
