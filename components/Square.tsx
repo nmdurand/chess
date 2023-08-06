@@ -2,7 +2,7 @@ import { FC, useContext } from 'react'
 import { ChessContext } from '@/context/context'
 import { Piece } from './Piece'
 import { useDroppable } from '@dnd-kit/core'
-import { isDroppable } from '@/lib'
+import { isDroppable } from '@/lib/isDroppable'
 
 interface ISquare {
   row: number

@@ -5,13 +5,14 @@ import { isPathClear } from './utils'
 export const isDroppable = (
   touchedPiece: (PieceData & SquareData) | null,
   target: SquareData,
-  board: BoardData
+  board: BoardData,
+  isMenaceCheck = false
 ): boolean => {
   if (!touchedPiece) return false
   const { name: touchedName } = touchedPiece
   switch (touchedName) {
     case PieceName.Pawn:
-      return isPawnDroppable(touchedPiece, target, board)
+      return isPawnDroppable(touchedPiece, target, board, isMenaceCheck)
     case PieceName.Rook:
       return isRookDroppable(touchedPiece, target, board)
     case PieceName.Knight:
@@ -21,35 +22,71 @@ export const isDroppable = (
     case PieceName.Queen:
       return isQueenDroppable(touchedPiece, target, board)
     case PieceName.King:
-      return isKingDroppable(touchedPiece, target, board)
+      return isKingDroppable(touchedPiece, target, board, isMenaceCheck)
     default:
       return false
   }
 }
 
+const isMenaced = (
+  target: SquareData,
+  color: PieceColor,
+  board: BoardData
+): boolean => {
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[i].length; j++) {
+      const attackingPiece = board[i][j]
+      const isMenaceCheck = true
+      if (
+        (i !== target.row || j !== target.col) &&
+        attackingPiece &&
+        attackingPiece.color !== color &&
+        isDroppable(
+          { ...attackingPiece, row: i, col: j },
+          target,
+          board,
+          isMenaceCheck
+        )
+      ) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 const isPawnDroppable = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
-  board: BoardData
+  board: BoardData,
+  isMenaceCheck = false
 ): boolean => {
   const { color, row: fromRow, col: fromCol } = touchedPiece
   switch (color) {
     case PieceColor.Black:
-      return (
-        (col === fromCol &&
-          (row === fromRow + 1 || (fromRow === 1 && row === 3))) ||
-        (Math.abs(col - fromCol) === 1 &&
-          row === fromRow + 1 &&
-          board[row][col]?.color === PieceColor.White)
-      )
+      const isMovementAuthorized_black =
+        !isMenaceCheck &&
+        col === fromCol &&
+        ((row === fromRow + 1 && !board[row][col]) ||
+          (fromRow === 1 && row === 3 && !board[3][col]))
+      const isCaptureAuthorized_black =
+        Math.abs(col - fromCol) === 1 &&
+        row === fromRow + 1 &&
+        (isMenaceCheck || board[row][col]?.color === PieceColor.White)
+
+      return isMovementAuthorized_black || isCaptureAuthorized_black
     case PieceColor.White:
-      return (
-        (col === fromCol &&
-          (row === fromRow - 1 || (fromRow === 6 && row === 4))) ||
-        (Math.abs(col - fromCol) === 1 &&
-          row === fromRow - 1 &&
-          board[row][col]?.color === PieceColor.Black)
-      )
+      const isMovementAuthorized_white =
+        !isMenaceCheck &&
+        col === fromCol &&
+        ((row === fromRow - 1 && !board[row][col]) ||
+          (fromRow === 6 && row === 4 && !board[4][col]))
+      const isCaptureAuthorized_white =
+        Math.abs(col - fromCol) === 1 &&
+        row === fromRow - 1 &&
+        (isMenaceCheck || board[row][col]?.color === PieceColor.Black)
+
+      return isMovementAuthorized_white || isCaptureAuthorized_white
     default:
       return false
   }
@@ -117,10 +154,18 @@ const isQueenDroppable = (
 const isKingDroppable = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
-  board: BoardData
+  board: BoardData,
+  isMenaceCheck = false
 ): boolean => {
   const { color, row: fromRow, col: fromCol } = touchedPiece
   const isMovementAuthorized =
     Math.abs(row - fromRow) <= 1 && Math.abs(col - fromCol) <= 1
-  return isMovementAuthorized && board[row][col]?.color !== color
+  if (isMovementAuthorized) {
+    if (isMenaceCheck) return board[row][col]?.color !== color
+    else {
+      const isTargetSquareMenaced = isMenaced({ row, col }, color, board)
+      return !isTargetSquareMenaced && board[row][col]?.color !== color
+    }
+  }
+  return false
 }
