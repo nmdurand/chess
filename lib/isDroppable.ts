@@ -6,15 +6,14 @@ import { isInCheck } from './isInCheck'
 export const isDroppable = (
   touchedPiece: (PieceData & SquareData) | null,
   target: SquareData,
-  board: BoardData,
-  isMenaceCheck = false
+  board: BoardData
 ): boolean => {
   if (!touchedPiece) return false
   const { name: touchedName } = touchedPiece
   switch (touchedName) {
     case PieceName.Pawn:
       return (
-        isPawnDroppable(touchedPiece, target, board, isMenaceCheck) &&
+        isPawnDroppable(touchedPiece, target, board) &&
         !isInCheckAfterMove(touchedPiece, target, board)
       )
     case PieceName.Rook:
@@ -39,7 +38,7 @@ export const isDroppable = (
       )
     case PieceName.King:
       return (
-        isKingDroppable(touchedPiece, target, board, isMenaceCheck) &&
+        isKingDroppable(touchedPiece, target, board) &&
         !isInCheckAfterMove(touchedPiece, target, board)
       )
     default:
@@ -60,24 +59,18 @@ export const isInCheckAfterMove = (
 }
 
 export const isMenaced = (
-  target: SquareData,
+  square: SquareData,
   color: PieceColor,
   board: BoardData
 ): boolean => {
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[i].length; j++) {
       const attackingPiece = board[i][j]
-      const isMenaceCheck = true
       if (
-        (i !== target.row || j !== target.col) &&
+        (i !== square.row || j !== square.col) &&
         attackingPiece &&
         attackingPiece.color !== color &&
-        isDroppable(
-          { ...attackingPiece, row: i, col: j },
-          target,
-          board,
-          isMenaceCheck
-        )
+        isDroppable({ ...attackingPiece, row: i, col: j }, square, board)
       ) {
         return true
       }
@@ -89,33 +82,30 @@ export const isMenaced = (
 const isPawnDroppable = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
-  board: BoardData,
-  isMenaceCheck = false
+  board: BoardData
 ): boolean => {
   const { color, row: fromRow, col: fromCol } = touchedPiece
   switch (color) {
     case PieceColor.Black:
       const isMovementAuthorized_black =
-        !isMenaceCheck &&
         col === fromCol &&
         ((row === fromRow + 1 && !board[row][col]) ||
           (fromRow === 1 && row === 3 && !board[3][col]))
       const isCaptureAuthorized_black =
         Math.abs(col - fromCol) === 1 &&
         row === fromRow + 1 &&
-        (isMenaceCheck || board[row][col]?.color === PieceColor.White)
+        board[row][col]?.color === PieceColor.White
 
       return isMovementAuthorized_black || isCaptureAuthorized_black
     case PieceColor.White:
       const isMovementAuthorized_white =
-        !isMenaceCheck &&
         col === fromCol &&
         ((row === fromRow - 1 && !board[row][col]) ||
           (fromRow === 6 && row === 4 && !board[4][col]))
       const isCaptureAuthorized_white =
         Math.abs(col - fromCol) === 1 &&
         row === fromRow - 1 &&
-        (isMenaceCheck || board[row][col]?.color === PieceColor.Black)
+        board[row][col]?.color === PieceColor.Black
 
       return isMovementAuthorized_white || isCaptureAuthorized_white
     default:
@@ -185,18 +175,10 @@ const isQueenDroppable = (
 const isKingDroppable = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
-  board: BoardData,
-  isMenaceCheck = false
+  board: BoardData
 ): boolean => {
   const { color, row: fromRow, col: fromCol } = touchedPiece
   const isMovementAuthorized =
     Math.abs(row - fromRow) <= 1 && Math.abs(col - fromCol) <= 1
-  if (isMovementAuthorized) {
-    if (isMenaceCheck) return board[row][col]?.color !== color
-    else {
-      const isTargetSquareMenaced = isMenaced({ row, col }, color, board)
-      return !isTargetSquareMenaced && board[row][col]?.color !== color
-    }
-  }
-  return false
+  return isMovementAuthorized && board[row][col]?.color !== color
 }

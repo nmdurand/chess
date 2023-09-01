@@ -29,7 +29,12 @@ export const Board: FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDragEnd = (event: any) => {
     const { active, over } = event
-    if (!over) return
+    if (!over) {
+      dispatch({
+        type: 'UNTOUCH_PIECE',
+      })
+      return
+    }
     if (active.id !== over.id) {
       const [, fromRow, fromCol] = active.id.match(ROW_COL_REGEX)
       const [, toRow, toCol] = over.id.match(ROW_COL_REGEX)

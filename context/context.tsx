@@ -36,6 +36,8 @@ export const ChessContext = React.createContext<ChessContextType>({
   dispatch: () => {},
 })
 
+export const BOARD_SIZE = 8
+
 export const INITIAL_BOARD_DATA = [
   [
     { name: PieceName.Rook, color: PieceColor.Black },
@@ -94,6 +96,9 @@ type BoardActionType =
       }
     }
   | {
+      type: 'UNTOUCH_PIECE'
+    }
+  | {
       type: 'MOVE_PIECE'
       payload: {
         from: { row: number; col: number }
@@ -125,6 +130,11 @@ const contextReducer = (
         ...state,
         touchedPiece: pieceAndSquareData,
       }
+    case 'UNTOUCH_PIECE':
+      return {
+        ...state,
+        touchedPiece: null,
+      }
     case 'MOVE_PIECE':
       const { board, boardHistory, currentColor } = state
       const newBoard = JSON.parse(JSON.stringify(board))
@@ -135,7 +145,6 @@ const contextReducer = (
       const newColor =
         currentColor === PieceColor.White ? PieceColor.Black : PieceColor.White
       const newStatus = checkGameStatus(newColor, newBoard)
-
       return {
         board: newBoard,
         boardHistory: [
@@ -148,21 +157,28 @@ const contextReducer = (
         currentColor: newColor,
       }
     case 'REWIND_HISTORY':
-      const prevBoard = state.boardHistory[state.currentTurn - 1]
+      const prevTurn = state.currentTurn - 1
+      const prevBoard = state.boardHistory[prevTurn]
+      const prevColor = prevTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
+      const prevStatus = checkGameStatus(prevColor, prevBoard)
       return {
         ...state,
         board: prevBoard,
         currentTurn: state.currentTurn - 1,
+        currentColor: prevColor,
+        gameStatus: prevStatus,
       }
     case 'FORWARD_HISTORY':
-      if (state.currentTurn === state.boardHistory.length - 1) {
-        return state
-      }
-      const nextBoard = state.boardHistory[state.currentTurn + 1]
+      const nextTurn = state.currentTurn + 1
+      const nextBoard = state.boardHistory[nextTurn]
+      const nextColor = nextTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
+      const nextStatus = checkGameStatus(nextColor, nextBoard)
       return {
         ...state,
         board: nextBoard,
-        currentTurn: state.currentTurn + 1,
+        currentTurn: nextTurn,
+        currentcolor: nextColor,
+        gameStatus: nextStatus,
       }
     default:
       return state

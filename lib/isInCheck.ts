@@ -1,4 +1,4 @@
-import { BoardData } from '@/context/context'
+import { BOARD_SIZE, BoardData } from '@/context/context'
 import { GameStatus, PieceColor, PieceName, SquareData } from './types'
 import { isDroppable, isMenaced } from './isDroppable'
 
@@ -9,8 +9,8 @@ export const isInCheck = (color: PieceColor, board: BoardData): boolean => {
 }
 
 const findKing = (color: PieceColor, board: BoardData): SquareData => {
-  for (let i = 0; i < board.length; i++) {
-    for (let j = 0; j < board[i].length; j++) {
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    for (let j = 0; j < BOARD_SIZE; j++) {
       const piece = board[i][j]
       if (piece?.name === PieceName.King && piece.color === color) {
         return { row: i, col: j }
@@ -25,24 +25,19 @@ export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
   const isKingMenaced = isMenaced(kingPosition, color, board)
   if (!isKingMenaced) return false
 
-  for (let row = 0; row < board.length; row++) {
-    for (let col = 0; col < board[row].length; col++) {
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
       const piece = board[row][col]
       if (!piece) continue
       if (piece?.color === color) {
         // Check if piece can be moved in a way that the king is not menaced anymore
-        for (let targetRow = 0; targetRow < board.length; targetRow++) {
-          for (
-            let targetCol = 0;
-            targetCol < board[targetRow].length;
-            targetCol++
-          ) {
+        for (let targetRow = 0; targetRow < BOARD_SIZE; targetRow++) {
+          for (let targetCol = 0; targetCol < BOARD_SIZE; targetCol++) {
             if (
               isDroppable(
                 { ...piece, row, col },
                 { row: targetRow, col: targetCol },
-                board,
-                false
+                board
               )
             ) {
               const newBoard = board.map((row) => row.map((col) => col))

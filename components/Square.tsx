@@ -34,7 +34,7 @@ export const Square: FC<ISquare> = ({ row, col }) => {
   const getSquareBgColorClass = () => {
     if (isKingCheckMate) return 'bg-red-900'
     if (isKingInCheck) return 'bg-red-500'
-    if (isOver) return 'bg-green-400'
+    if (isPieceDroppable) return 'bg-green-400'
     if ((row + col) % 2 === 0) return 'bg-zinc-400'
     return 'bg-slate-600'
   }
