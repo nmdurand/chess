@@ -8,7 +8,7 @@ import {
   SquareData,
 } from '@/lib/types'
 import { checkGameStatus } from '@/lib/isInCheck'
-import React, { FC, ReactNode } from 'react'
+import React, { FC, ReactNode, useMemo } from 'react'
 
 export type BoardData = (PieceData | undefined)[][]
 
@@ -181,13 +181,16 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
     currentColor: PieceColor.White,
   })
 
+  const globalContextValue = useMemo(
+    () => ({
+      dispatch,
+      state,
+    }),
+    [dispatch, state]
+  )
+
   return (
-    <ChessContext.Provider
-      value={{
-        state,
-        dispatch,
-      }}
-    >
+    <ChessContext.Provider value={globalContextValue}>
       {children}
     </ChessContext.Provider>
   )
