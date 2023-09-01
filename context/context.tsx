@@ -1,7 +1,13 @@
 'use client'
 
-import { PieceColor, PieceData, PieceName, SquareData } from '@/lib/types'
-import { isCheckMate, isInCheck } from '@/lib/isInCheck'
+import {
+  GameStatus,
+  PieceColor,
+  PieceData,
+  PieceName,
+  SquareData,
+} from '@/lib/types'
+import { checkGameStatus } from '@/lib/isInCheck'
 import React, { FC, ReactNode } from 'react'
 
 export type BoardData = (PieceData | undefined)[][]
@@ -12,8 +18,8 @@ interface ChessContextType {
     boardHistory: BoardData[]
     currentTurn: number
     touchedPiece: (PieceData & SquareData) | null
-    isInCheck: PieceColor | null
-    isCheckMate: PieceColor | null
+    gameStatus: GameStatus
+    currentColor: PieceColor
   }
   dispatch: React.Dispatch<BoardActionType>
 }
@@ -24,8 +30,8 @@ export const ChessContext = React.createContext<ChessContextType>({
     boardHistory: [],
     currentTurn: 0,
     touchedPiece: null,
-    isInCheck: null,
-    isCheckMate: null,
+    gameStatus: GameStatus.InProgress,
+    currentColor: PieceColor.White,
   },
   dispatch: () => {},
 })
@@ -107,6 +113,8 @@ const contextReducer = (
     boardHistory: BoardData[]
     currentTurn: number
     touchedPiece: (PieceData & SquareData) | null
+    gameStatus: GameStatus
+    currentColor: PieceColor
   },
   action: BoardActionType
 ) => {
@@ -118,41 +126,26 @@ const contextReducer = (
         touchedPiece: pieceAndSquareData,
       }
     case 'MOVE_PIECE':
-      const { board, boardHistory } = state
+      const { board, boardHistory, currentColor } = state
       const newBoard = JSON.parse(JSON.stringify(board))
       const { from, to } = action.payload
       newBoard[to.row][to.col] = newBoard[from.row][from.col]
       newBoard[from.row][from.col] = undefined
 
-      let newIsInCheck = null
-      let newIsCheckMate = null
-      const isWhiteInCheck = isInCheck(PieceColor.White, newBoard)
-      if (isWhiteInCheck) {
-        newIsInCheck = PieceColor.White
-        const isWhiteCheckMate = isCheckMate(PieceColor.White, newBoard)
-        if (isWhiteCheckMate) {
-          newIsCheckMate = PieceColor.White
-        }
-      }
-      const isBlackInCheck = isInCheck(PieceColor.Black, newBoard)
-      if (isBlackInCheck) {
-        newIsInCheck = PieceColor.Black
-        const isBlackCheckMate = isCheckMate(PieceColor.Black, newBoard)
-        if (isBlackCheckMate) {
-          newIsCheckMate = PieceColor.Black
-        }
-      }
+      const newColor =
+        currentColor === PieceColor.White ? PieceColor.Black : PieceColor.White
+      const newStatus = checkGameStatus(newColor, newBoard)
 
       return {
         board: newBoard,
-        isInCheck: newIsInCheck,
-        isCheckMate: newIsCheckMate,
         boardHistory: [
           ...boardHistory.slice(0, state.currentTurn + 1),
           newBoard,
         ],
         currentTurn: state.currentTurn + 1,
         touchedPiece: null,
+        gameStatus: newStatus,
+        currentColor: newColor,
       }
     case 'REWIND_HISTORY':
       const prevBoard = state.boardHistory[state.currentTurn - 1]
@@ -184,6 +177,8 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
     boardHistory: [INITIAL_BOARD_DATA],
     currentTurn: 0,
     touchedPiece: null,
+    gameStatus: GameStatus.InProgress,
+    currentColor: PieceColor.White,
   })
 
   return (

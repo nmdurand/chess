@@ -2,8 +2,8 @@ import { FC, useContext } from 'react'
 import { ChessContext } from '@/context/context'
 import { Piece } from './Piece'
 import { useDroppable } from '@dnd-kit/core'
-import { isDroppable, isMenaced } from '@/lib/isDroppable'
-import { PieceColor, PieceName } from '@/lib/types'
+import { isDroppable } from '@/lib/isDroppable'
+import { GameStatus, PieceName } from '@/lib/types'
 
 interface ISquare {
   row: number
@@ -12,7 +12,7 @@ interface ISquare {
 
 export const Square: FC<ISquare> = ({ row, col }) => {
   const { state } = useContext(ChessContext)
-  const { board, touchedPiece } = state
+  const { board, touchedPiece, gameStatus, currentColor } = state
   const { name, color } = board[row][col] ?? {}
 
   const isPieceDroppable = isDroppable(touchedPiece, { row, col }, board)
@@ -22,12 +22,18 @@ export const Square: FC<ISquare> = ({ row, col }) => {
     disabled: !isPieceDroppable,
   })
 
-  const isInCheck =
-    name === PieceName.King &&
-    isMenaced({ row, col }, color as PieceColor, board)
+  const isKingInCheck =
+    gameStatus === GameStatus.Check &&
+    currentColor === color &&
+    name === PieceName.King
+  const isKingCheckMate =
+    gameStatus === GameStatus.CheckMate &&
+    currentColor === color &&
+    name === PieceName.King
 
   const getSquareBgColorClass = () => {
-    if (isInCheck) return 'bg-red-500'
+    if (isKingCheckMate) return 'bg-red-900'
+    if (isKingInCheck) return 'bg-red-500'
     if (isOver) return 'bg-green-400'
     if ((row + col) % 2 === 0) return 'bg-zinc-400'
     return 'bg-slate-600'

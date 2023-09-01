@@ -21,3 +21,9 @@ export interface SquareData {
   row: number
   col: number
 }
+
+export enum GameStatus {
+  InProgress = 'inProgress',
+  Check = 'check',
+  CheckMate = 'checkMate',
+}

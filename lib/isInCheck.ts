@@ -1,5 +1,5 @@
 import { BoardData } from '@/context/context'
-import { PieceColor, PieceName, SquareData } from './types'
+import { GameStatus, PieceColor, PieceName, SquareData } from './types'
 import { isDroppable, isMenaced } from './isDroppable'
 
 export const isInCheck = (color: PieceColor, board: BoardData): boolean => {
@@ -42,7 +42,7 @@ export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
                 { ...piece, row, col },
                 { row: targetRow, col: targetCol },
                 board,
-                true
+                false
               )
             ) {
               const newBoard = board.map((row) => row.map((col) => col))
@@ -57,4 +57,19 @@ export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
     }
   }
   return true
+}
+
+export const checkGameStatus = (
+  color: PieceColor,
+  board: BoardData
+): GameStatus => {
+  const isKingMenaced = isInCheck(color, board)
+  if (isKingMenaced) {
+    const isCheckMateStatus = isCheckMate(color, board)
+    if (isCheckMateStatus) {
+      return GameStatus.CheckMate
+    }
+    return GameStatus.Check
+  }
+  return GameStatus.InProgress
 }
