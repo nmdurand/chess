@@ -1,6 +1,7 @@
 import { BoardData } from '@/context/context'
 import { PieceColor, PieceData, PieceName, SquareData } from '@/lib/types'
 import { isPathClear } from './utils'
+import { isInCheck } from './isInCheck'
 
 export const isDroppable = (
   touchedPiece: (PieceData & SquareData) | null,
@@ -12,20 +13,50 @@ export const isDroppable = (
   const { name: touchedName } = touchedPiece
   switch (touchedName) {
     case PieceName.Pawn:
-      return isPawnDroppable(touchedPiece, target, board, isMenaceCheck)
+      return (
+        isPawnDroppable(touchedPiece, target, board, isMenaceCheck) &&
+        !isInCheckAfterMove(touchedPiece, target, board)
+      )
     case PieceName.Rook:
-      return isRookDroppable(touchedPiece, target, board)
+      return (
+        isRookDroppable(touchedPiece, target, board) &&
+        !isInCheckAfterMove(touchedPiece, target, board)
+      )
     case PieceName.Knight:
-      return isKnightDroppable(touchedPiece, target, board)
+      return (
+        isKnightDroppable(touchedPiece, target, board) &&
+        !isInCheckAfterMove(touchedPiece, target, board)
+      )
     case PieceName.Bishop:
-      return isBishopDroppable(touchedPiece, target, board)
+      return (
+        isBishopDroppable(touchedPiece, target, board) &&
+        !isInCheckAfterMove(touchedPiece, target, board)
+      )
     case PieceName.Queen:
-      return isQueenDroppable(touchedPiece, target, board)
+      return (
+        isQueenDroppable(touchedPiece, target, board) &&
+        !isInCheckAfterMove(touchedPiece, target, board)
+      )
     case PieceName.King:
-      return isKingDroppable(touchedPiece, target, board, isMenaceCheck)
+      return (
+        isKingDroppable(touchedPiece, target, board, isMenaceCheck) &&
+        !isInCheckAfterMove(touchedPiece, target, board)
+      )
     default:
       return false
   }
+}
+
+export const isInCheckAfterMove = (
+  touchedPiece: PieceData & SquareData,
+  target: SquareData,
+  board: BoardData
+): boolean => {
+  const newBoard = board.map((row) => row.map((col) => col))
+  newBoard[target.row][target.col] =
+    newBoard[touchedPiece.row][touchedPiece.col]
+  newBoard[touchedPiece.row][touchedPiece.col] = undefined
+  return isInCheck(touchedPiece.color, newBoard)
 }
 
 export const isMenaced = (
