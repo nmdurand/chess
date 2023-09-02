@@ -1,6 +1,6 @@
 import { FC, useContext } from 'react'
 import { ChessContext } from '@/context/context'
-import { PieceColor } from '@/lib/types'
+import { GameStatus, PieceColor } from '@/lib/types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
@@ -17,8 +17,8 @@ export const GameDetails: FC = () => {
 
   return (
     <div className="py-6 text-center">
-      <div className="w-80 grid grid-cols-3">
-        <div className="flex align-center justify-center">
+      <div className="w-96 grid grid-cols-3 border border-gray-50 p-4 border-opacity-20 rounded-md">
+        <div className="flex items-center justify-center">
           {currentTurn > 0 && (
             <FontAwesomeIcon
               className="w-6 h-6 text-center"
@@ -27,8 +27,14 @@ export const GameDetails: FC = () => {
             />
           )}
         </div>
-        <span>Turn: {currentTurn}</span>
-        <div className="flex align-center justify-center">
+        <div>
+          <span>Turn: {currentTurn}</span>
+          <div>
+            ({`${currentTurn % 2 === 0 ? PieceColor.White : PieceColor.Black}`}{' '}
+            plays)
+          </div>
+        </div>
+        <div className="flex items-center justify-center">
           {currentTurn < boardHistory.length - 1 && (
             <FontAwesomeIcon
               className="w-6 h-6 text-center"
@@ -38,9 +44,13 @@ export const GameDetails: FC = () => {
           )}
         </div>
       </div>
-      <div>
-        ({`${currentTurn % 2 === 0 ? PieceColor.White : PieceColor.Black}`}{' '}
-        play)
+      <div className={'h-10 mt-4 text-3xl'}>
+        {state.gameStatus === GameStatus.CheckMate && (
+          <div className="text-red-900">Checkmate</div>
+        )}
+        {state.gameStatus === GameStatus.Check && (
+          <div className="text-red-500">Check</div>
+        )}
       </div>
     </div>
   )
