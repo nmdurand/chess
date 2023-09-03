@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  BoardData,
   GameStatus,
   PieceColor,
   PieceData,
@@ -9,8 +10,6 @@ import {
 } from '@/lib/types'
 import { checkGameStatus } from '@/lib/isInCheck'
 import React, { FC, ReactNode, useMemo } from 'react'
-
-export type BoardData = (PieceData | undefined)[][]
 
 interface ChessContextType {
   state: {
@@ -35,8 +34,6 @@ export const ChessContext = React.createContext<ChessContextType>({
   },
   dispatch: () => {},
 })
-
-export const BOARD_SIZE = 8
 
 export const INITIAL_BOARD_DATA = [
   [
@@ -145,6 +142,18 @@ const contextReducer = (
       const newColor =
         currentColor === PieceColor.White ? PieceColor.Black : PieceColor.White
       const newStatus = checkGameStatus(newColor, newBoard)
+
+      // fetch('/api/positionRating', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     board: newBoard,
+      //     currentColor: newColor,
+      //   }),
+      // }).then(async (res) => {
+      //   const { data: positionRating } = await res.json()
+      //   console.log('>>>>>>', positionRating)
+      // })
+
       return {
         board: newBoard,
         boardHistory: [

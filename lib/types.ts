@@ -17,6 +17,8 @@ export interface PieceData {
   color: PieceColor
 }
 
+export type BoardData = (PieceData | undefined)[][]
+
 export interface SquareData {
   row: number
   col: number

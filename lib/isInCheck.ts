@@ -1,4 +1,5 @@
-import { BOARD_SIZE, BoardData } from '@/context/context'
+import { BoardData } from '@/lib/types'
+import { BOARD_SIZE } from '@/lib//constants'
 import { GameStatus, PieceColor, PieceName, SquareData } from './types'
 import { isDroppable, isMenaced } from './isDroppable'
 
