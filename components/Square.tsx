@@ -3,7 +3,7 @@ import { ChessContext } from '@/context/context'
 import { Piece } from './Piece'
 import { useDroppable } from '@dnd-kit/core'
 import { isDroppable } from '@/lib/isDroppable'
-import { GameStatus, PieceName } from '@/lib/types'
+import { GameStatus, PieceColor, PieceName } from '@/lib/types'
 
 interface ISquare {
   row: number
@@ -12,7 +12,9 @@ interface ISquare {
 
 export const Square: FC<ISquare> = ({ row, col }) => {
   const { state } = useContext(ChessContext)
-  const { board, touchedPiece, gameStatus, currentColor } = state
+  const { board, touchedPiece, gameStatus, currentTurn } = state
+  const currentColor =
+    currentTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
   const { name, color } = board[row][col] ?? {}
 
   const isPieceDroppable = isDroppable(touchedPiece, { row, col }, board)

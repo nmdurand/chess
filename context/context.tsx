@@ -16,12 +16,10 @@ interface ChessContextType {
   state: {
     board: BoardData
     currentTurn: number
-    currentColor: PieceColor
     gameStatus: GameStatus
     stateHistory: {
       board: BoardData
       currentTurn: number
-      currentColor: PieceColor
       gameStatus: GameStatus
     }[]
     touchedPiece: (PieceData & SquareData) | null
@@ -36,7 +34,6 @@ export const ChessContext = React.createContext<ChessContextType>({
     currentTurn: 0,
     touchedPiece: null,
     gameStatus: GameStatus.InProgress,
-    currentColor: PieceColor.White,
   },
   dispatch: () => {},
 })
@@ -121,13 +118,11 @@ const contextReducer = (
     stateHistory: {
       board: BoardData
       currentTurn: number
-      currentColor: PieceColor
       gameStatus: GameStatus
     }[]
     currentTurn: number
     touchedPiece: (PieceData & SquareData) | null
     gameStatus: GameStatus
-    currentColor: PieceColor
   },
   action: BoardActionType
 ) => {
@@ -144,7 +139,7 @@ const contextReducer = (
         touchedPiece: null,
       }
     case 'MOVE_PIECE':
-      const { board, stateHistory, currentColor, currentTurn } = state
+      const { board, stateHistory, currentTurn } = state
       const { from, to } = action.payload
       const newBoard = updateBoard({
         board,
@@ -154,15 +149,13 @@ const contextReducer = (
         },
       })
 
-      const newColor =
-        currentColor === PieceColor.White ? PieceColor.Black : PieceColor.White
-      const newStatus = checkGameStatus(newColor, newBoard)
       const newTurn = currentTurn + 1
+      const newColor = newTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
+      const newStatus = checkGameStatus(newColor, newBoard)
 
       const newState = {
         board: newBoard,
         currentTurn: newTurn,
-        currentColor: newColor,
         gameStatus: newStatus,
       }
       // fetch('/api/positionRating', {
@@ -210,14 +203,12 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
       {
         board: INITIAL_BOARD_DATA,
         currentTurn: 0,
-        currentColor: PieceColor.White,
         gameStatus: GameStatus.InProgress,
       },
     ],
     currentTurn: 0,
     touchedPiece: null,
     gameStatus: GameStatus.InProgress,
-    currentColor: PieceColor.White,
   })
 
   const globalContextValue = useMemo(
