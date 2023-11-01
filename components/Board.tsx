@@ -41,8 +41,8 @@ export const Board: FC = () => {
       dispatch({
         type: 'MOVE_PIECE',
         payload: {
-          from: { row: fromRow, col: fromCol },
-          to: { row: toRow, col: toCol },
+          from: { row: parseInt(fromRow, 10), col: parseInt(fromCol, 10) },
+          to: { row: parseInt(toRow, 10), col: parseInt(toCol, 10) },
         },
       })
     }

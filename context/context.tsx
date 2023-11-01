@@ -17,11 +17,19 @@ interface ChessContextType {
     currentTurn: number
     currentColor: PieceColor
     gameStatus: GameStatus
+    kingsPositions: {
+      [PieceColor.White]: SquareData
+      [PieceColor.Black]: SquareData
+    }
     stateHistory: {
       board: BoardData
       currentTurn: number
       currentColor: PieceColor
       gameStatus: GameStatus
+      kingsPositions: {
+        [PieceColor.White]: SquareData
+        [PieceColor.Black]: SquareData
+      }
     }[]
     touchedPiece: (PieceData & SquareData) | null
   }
@@ -36,6 +44,10 @@ export const ChessContext = React.createContext<ChessContextType>({
     touchedPiece: null,
     gameStatus: GameStatus.InProgress,
     currentColor: PieceColor.White,
+    kingsPositions: {
+      [PieceColor.White]: { row: 7, col: 4 },
+      [PieceColor.Black]: { row: 0, col: 4 },
+    },
   },
   dispatch: () => {},
 })
@@ -103,8 +115,8 @@ type BoardActionType =
   | {
       type: 'MOVE_PIECE'
       payload: {
-        from: { row: number; col: number }
-        to: { row: number; col: number }
+        from: SquareData
+        to: SquareData
       }
     }
   | {
@@ -122,11 +134,19 @@ const contextReducer = (
       currentTurn: number
       currentColor: PieceColor
       gameStatus: GameStatus
+      kingsPositions: {
+        [PieceColor.White]: SquareData
+        [PieceColor.Black]: SquareData
+      }
     }[]
     currentTurn: number
     touchedPiece: (PieceData & SquareData) | null
     gameStatus: GameStatus
     currentColor: PieceColor
+    kingsPositions: {
+      [PieceColor.White]: SquareData
+      [PieceColor.Black]: SquareData
+    }
   },
   action: BoardActionType
 ) => {
@@ -149,11 +169,22 @@ const contextReducer = (
       newBoard[to.row][to.col] = newBoard[from.row][from.col]
       newBoard[from.row][from.col] = undefined
 
+      const newKingsPositions = state.kingsPositions
+      if (newBoard[to.row][to.col].name === PieceName.King) {
+        newKingsPositions[currentColor] = to
+      }
       const newColor =
         currentColor === PieceColor.White ? PieceColor.Black : PieceColor.White
       const newStatus = checkGameStatus(newColor, newBoard)
       const newTurn = currentTurn + 1
 
+      const newState = {
+        board: newBoard,
+        currentTurn: newTurn,
+        currentColor: newColor,
+        gameStatus: newStatus,
+        kingsPositions: newKingsPositions,
+      }
       // fetch('/api/positionRating', {
       //   method: 'POST',
       //   body: JSON.stringify({
@@ -166,20 +197,12 @@ const contextReducer = (
       // })
 
       return {
-        board: newBoard,
+        ...newState,
         stateHistory: [
           ...stateHistory.slice(0, state.currentTurn + 1),
-          {
-            board: newBoard,
-            currentTurn: newTurn,
-            currentColor: newColor,
-            gameStatus: newStatus,
-          },
+          newState,
         ],
-        currentTurn: newTurn,
         touchedPiece: null,
-        gameStatus: newStatus,
-        currentColor: newColor,
       }
     case 'REWIND_HISTORY':
       const prevTurn = state.currentTurn - 1
@@ -209,12 +232,20 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
         currentTurn: 0,
         currentColor: PieceColor.White,
         gameStatus: GameStatus.InProgress,
+        kingsPositions: {
+          [PieceColor.White]: { row: 7, col: 4 },
+          [PieceColor.Black]: { row: 0, col: 4 },
+        },
       },
     ],
     currentTurn: 0,
     touchedPiece: null,
     gameStatus: GameStatus.InProgress,
     currentColor: PieceColor.White,
+    kingsPositions: {
+      [PieceColor.White]: { row: 7, col: 4 },
+      [PieceColor.Black]: { row: 0, col: 4 },
+    },
   })
 
   const globalContextValue = useMemo(

@@ -21,7 +21,7 @@ export const Square: FC<ISquare> = ({ row, col }) => {
     id: `square-${row}-${col}`,
     disabled: !isPieceDroppable,
   })
-  
+
   const isKingInCheck =
     gameStatus === GameStatus.Check &&
     currentColor === color &&

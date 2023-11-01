@@ -51,7 +51,7 @@ export const isInCheckAfterMove = (
   target: SquareData,
   board: BoardData
 ): boolean => {
-  const newBoard = board.map((row) => row.map((col) => col))
+  const newBoard = JSON.parse(JSON.stringify(board))
   newBoard[target.row][target.col] =
     newBoard[touchedPiece.row][touchedPiece.col]
   newBoard[touchedPiece.row][touchedPiece.col] = undefined
