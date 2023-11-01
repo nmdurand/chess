@@ -2,7 +2,7 @@ import { FC, useContext } from 'react'
 import { ChessContext } from '@/context/context'
 import { Piece } from './Piece'
 import { useDroppable } from '@dnd-kit/core'
-import { isDroppable } from '@/lib/isDroppable'
+import { isDroppableAndNotInCheckAfterMove } from '@/lib/isDroppable'
 import { GameStatus, PieceColor, PieceName } from '@/lib/types'
 
 interface ISquare {
@@ -17,7 +17,11 @@ export const Square: FC<ISquare> = ({ row, col }) => {
     currentTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
   const { name, color } = board[row][col] ?? {}
 
-  const isPieceDroppable = isDroppable(touchedPiece, { row, col }, board)
+  const isPieceDroppable = isDroppableAndNotInCheckAfterMove(
+    touchedPiece,
+    { row, col },
+    board
+  )
   const isOriginSquare = touchedPiece?.row === row && touchedPiece?.col === col
 
   const { setNodeRef } = useDroppable({

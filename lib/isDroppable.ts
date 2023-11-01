@@ -8,50 +8,43 @@ export const isDroppable = (
   target: SquareData,
   board: BoardData
 ): boolean => {
-  console.log('>>> Is droppable ?', touchedPiece, target)
   if (!touchedPiece) return false
   const { name: touchedName } = touchedPiece
   switch (touchedName) {
     case PieceName.Pawn:
-      return (
-        canPawnReachTarget(touchedPiece, target, board) &&
-        !isInCheckAfterMove(touchedPiece, target, board)
-      )
+      return canPawnReachTarget(touchedPiece, target, board)
     case PieceName.Rook:
-      return (
-        canRookReachTarget(touchedPiece, target, board) &&
-        !isInCheckAfterMove(touchedPiece, target, board)
-      )
+      return canRookReachTarget(touchedPiece, target, board)
     case PieceName.Knight:
-      return (
-        canKnightReachTarget(touchedPiece, target, board) &&
-        !isInCheckAfterMove(touchedPiece, target, board)
-      )
+      return canKnightReachTarget(touchedPiece, target, board)
     case PieceName.Bishop:
-      return (
-        canBishopReachTarget(touchedPiece, target, board) &&
-        !isInCheckAfterMove(touchedPiece, target, board)
-      )
+      return canBishopReachTarget(touchedPiece, target, board)
     case PieceName.Queen:
-      return (
-        canQueenReachTarget(touchedPiece, target, board) &&
-        !isInCheckAfterMove(touchedPiece, target, board)
-      )
+      return canQueenReachTarget(touchedPiece, target, board)
     case PieceName.King:
-      return (
-        canKingReachTarget(touchedPiece, target, board) &&
-        !isInCheckAfterMove(touchedPiece, target, board)
-      )
+      return canKingReachTarget(touchedPiece, target, board)
     default:
       return false
   }
 }
 
-export const isInCheckAfterMove = (
-  touchedPiece: PieceData & SquareData,
+export const isDroppableAndNotInCheckAfterMove = (
+  touchedPiece: (PieceData & SquareData) | null,
   target: SquareData,
   board: BoardData
 ): boolean => {
+  return (
+    isDroppable(touchedPiece, target, board) &&
+    !isInCheckAfterMove(touchedPiece, target, board)
+  )
+}
+
+export const isInCheckAfterMove = (
+  touchedPiece: (PieceData & SquareData) | null,
+  target: SquareData,
+  board: BoardData
+): boolean => {
+  if (!touchedPiece) return false
   const newBoard = updateBoard({
     board,
     move: {

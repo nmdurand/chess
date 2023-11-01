@@ -1,8 +1,8 @@
 import { BoardData } from '@/lib/types'
 import { BOARD_SIZE } from '@/lib/constants'
 import { GameStatus, PieceColor } from './types'
-import { isDroppable, isMenaced } from './isDroppable'
-import { findKing } from './utils'
+import { isDroppableAndNotInCheckAfterMove, isMenaced } from './isDroppable'
+import { findKing, updateBoard } from './utils'
 
 export const isInCheck = (color: PieceColor, board: BoardData): boolean => {
   const kingPosition = findKing(color, board)
@@ -21,19 +21,23 @@ export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
       const piece = board[row][col]
       if (!piece) continue
       if (piece?.color === color) {
-        // Check if piece can be moved in a way that the king is not menaced anymore
+        // Check if any piece can be moved in a way that the king is not menaced anymore
         for (let targetRow = 0; targetRow < BOARD_SIZE; targetRow++) {
           for (let targetCol = 0; targetCol < BOARD_SIZE; targetCol++) {
             if (
-              isDroppable(
+              isDroppableAndNotInCheckAfterMove(
                 { ...piece, row, col },
                 { row: targetRow, col: targetCol },
                 board
               )
             ) {
-              const newBoard = board.map((row) => row.map((col) => col))
-              newBoard[targetRow][targetCol] = newBoard[row][col]
-              newBoard[row][col] = undefined
+              const newBoard = updateBoard({
+                board,
+                move: {
+                  from: { row, col },
+                  to: { row: targetRow, col: targetCol },
+                },
+              })
               const isKingMenaced = isInCheck(color, newBoard)
               if (!isKingMenaced) return false
             }
