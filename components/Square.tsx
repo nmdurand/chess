@@ -16,8 +16,9 @@ export const Square: FC<ISquare> = ({ row, col }) => {
   const { name, color } = board[row][col] ?? {}
 
   const isPieceDroppable = isDroppable(touchedPiece, { row, col }, board)
+  const isOriginSquare = touchedPiece?.row === row && touchedPiece?.col === col
 
-  const { isOver, setNodeRef } = useDroppable({
+  const { setNodeRef } = useDroppable({
     id: `square-${row}-${col}`,
     disabled: !isPieceDroppable,
   })
@@ -34,7 +35,8 @@ export const Square: FC<ISquare> = ({ row, col }) => {
   const getSquareBgColorClass = () => {
     if (isKingCheckMate) return 'bg-red-900'
     if (isKingInCheck) return 'bg-red-500'
-    if (isPieceDroppable) return 'bg-green-400'
+    if (isOriginSquare) return 'bg-green-500'
+    if (isPieceDroppable) return 'bg-green-500'
     if ((row + col) % 2 === 0) return 'bg-zinc-400'
     return 'bg-slate-600'
   }

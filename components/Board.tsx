@@ -6,7 +6,7 @@ import { ChessContext } from '@/context/context'
 const ROW_COL_REGEX = /-(\d+)-(\d+)/
 
 export const Board: FC = () => {
-  const { dispatch, state } = useContext(ChessContext)
+  const { dispatch } = useContext(ChessContext)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDragStart = (event: any) => {
