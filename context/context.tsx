@@ -14,11 +14,16 @@ import React, { FC, ReactNode, useMemo } from 'react'
 interface ChessContextType {
   state: {
     board: BoardData
-    boardHistory: BoardData[]
     currentTurn: number
-    touchedPiece: (PieceData & SquareData) | null
-    gameStatus: GameStatus
     currentColor: PieceColor
+    gameStatus: GameStatus
+    stateHistory: {
+      board: BoardData
+      currentTurn: number
+      currentColor: PieceColor
+      gameStatus: GameStatus
+    }[]
+    touchedPiece: (PieceData & SquareData) | null
   }
   dispatch: React.Dispatch<BoardActionType>
 }
@@ -26,7 +31,7 @@ interface ChessContextType {
 export const ChessContext = React.createContext<ChessContextType>({
   state: {
     board: new Array(8).fill(new Array(8)),
-    boardHistory: [],
+    stateHistory: [],
     currentTurn: 0,
     touchedPiece: null,
     gameStatus: GameStatus.InProgress,
@@ -112,7 +117,12 @@ type BoardActionType =
 const contextReducer = (
   state: {
     board: BoardData
-    boardHistory: BoardData[]
+    stateHistory: {
+      board: BoardData
+      currentTurn: number
+      currentColor: PieceColor
+      gameStatus: GameStatus
+    }[]
     currentTurn: number
     touchedPiece: (PieceData & SquareData) | null
     gameStatus: GameStatus
@@ -133,7 +143,7 @@ const contextReducer = (
         touchedPiece: null,
       }
     case 'MOVE_PIECE':
-      const { board, boardHistory, currentColor } = state
+      const { board, stateHistory, currentColor, currentTurn } = state
       const newBoard = JSON.parse(JSON.stringify(board))
       const { from, to } = action.payload
       newBoard[to.row][to.col] = newBoard[from.row][from.col]
@@ -142,6 +152,7 @@ const contextReducer = (
       const newColor =
         currentColor === PieceColor.White ? PieceColor.Black : PieceColor.White
       const newStatus = checkGameStatus(newColor, newBoard)
+      const newTurn = currentTurn + 1
 
       // fetch('/api/positionRating', {
       //   method: 'POST',
@@ -156,38 +167,31 @@ const contextReducer = (
 
       return {
         board: newBoard,
-        boardHistory: [
-          ...boardHistory.slice(0, state.currentTurn + 1),
-          newBoard,
+        stateHistory: [
+          ...stateHistory.slice(0, state.currentTurn + 1),
+          {
+            board: newBoard,
+            currentTurn: newTurn,
+            currentColor: newColor,
+            gameStatus: newStatus,
+          },
         ],
-        currentTurn: state.currentTurn + 1,
+        currentTurn: newTurn,
         touchedPiece: null,
         gameStatus: newStatus,
         currentColor: newColor,
       }
     case 'REWIND_HISTORY':
       const prevTurn = state.currentTurn - 1
-      const prevBoard = state.boardHistory[prevTurn]
-      const prevColor = prevTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
-      const prevStatus = checkGameStatus(prevColor, prevBoard)
       return {
         ...state,
-        board: prevBoard,
-        currentTurn: state.currentTurn - 1,
-        currentColor: prevColor,
-        gameStatus: prevStatus,
+        ...state.stateHistory[prevTurn],
       }
     case 'FORWARD_HISTORY':
       const nextTurn = state.currentTurn + 1
-      const nextBoard = state.boardHistory[nextTurn]
-      const nextColor = nextTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
-      const nextStatus = checkGameStatus(nextColor, nextBoard)
       return {
         ...state,
-        board: nextBoard,
-        currentTurn: nextTurn,
-        currentcolor: nextColor,
-        gameStatus: nextStatus,
+        ...state.stateHistory[nextTurn],
       }
     default:
       return state
@@ -199,7 +203,14 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
 }) => {
   const [state, dispatch] = React.useReducer(contextReducer, {
     board: INITIAL_BOARD_DATA,
-    boardHistory: [INITIAL_BOARD_DATA],
+    stateHistory: [
+      {
+        board: INITIAL_BOARD_DATA,
+        currentTurn: 0,
+        currentColor: PieceColor.White,
+        gameStatus: GameStatus.InProgress,
+      },
+    ],
     currentTurn: 0,
     touchedPiece: null,
     gameStatus: GameStatus.InProgress,

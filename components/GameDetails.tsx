@@ -6,7 +6,7 @@ import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export const GameDetails: FC = () => {
   const { state, dispatch } = useContext(ChessContext)
-  const { currentTurn, boardHistory } = state
+  const { currentTurn, stateHistory } = state
 
   const rewindHistory = () => {
     dispatch({ type: 'REWIND_HISTORY' })
@@ -35,7 +35,7 @@ export const GameDetails: FC = () => {
           </div>
         </div>
         <div className="flex items-center justify-center">
-          {currentTurn < boardHistory.length - 1 && (
+          {currentTurn < stateHistory.length - 1 && (
             <FontAwesomeIcon
               className="w-6 h-6 text-center"
               icon={faArrowRight}
