@@ -1,6 +1,6 @@
-import { BoardData } from '@/context/context'
+import { BoardData } from '@/lib/types'
 import { PieceColor, PieceData, PieceName, SquareData } from '@/lib/types'
-import { isPathClear } from './utils'
+import { isPathClear, updateBoard } from './utils'
 import { isInCheck } from './isInCheck'
 
 export const isDroppable = (
@@ -8,37 +8,38 @@ export const isDroppable = (
   target: SquareData,
   board: BoardData
 ): boolean => {
+  console.log('>>> Is droppable ?', touchedPiece, target)
   if (!touchedPiece) return false
   const { name: touchedName } = touchedPiece
   switch (touchedName) {
     case PieceName.Pawn:
       return (
-        isPawnDroppable(touchedPiece, target, board) &&
+        canPawnReachTarget(touchedPiece, target, board) &&
         !isInCheckAfterMove(touchedPiece, target, board)
       )
     case PieceName.Rook:
       return (
-        isRookDroppable(touchedPiece, target, board) &&
+        canRookReachTarget(touchedPiece, target, board) &&
         !isInCheckAfterMove(touchedPiece, target, board)
       )
     case PieceName.Knight:
       return (
-        isKnightDroppable(touchedPiece, target, board) &&
+        canKnightReachTarget(touchedPiece, target, board) &&
         !isInCheckAfterMove(touchedPiece, target, board)
       )
     case PieceName.Bishop:
       return (
-        isBishopDroppable(touchedPiece, target, board) &&
+        canBishopReachTarget(touchedPiece, target, board) &&
         !isInCheckAfterMove(touchedPiece, target, board)
       )
     case PieceName.Queen:
       return (
-        isQueenDroppable(touchedPiece, target, board) &&
+        canQueenReachTarget(touchedPiece, target, board) &&
         !isInCheckAfterMove(touchedPiece, target, board)
       )
     case PieceName.King:
       return (
-        isKingDroppable(touchedPiece, target, board) &&
+        canKingReachTarget(touchedPiece, target, board) &&
         !isInCheckAfterMove(touchedPiece, target, board)
       )
     default:
@@ -51,10 +52,13 @@ export const isInCheckAfterMove = (
   target: SquareData,
   board: BoardData
 ): boolean => {
-  const newBoard = JSON.parse(JSON.stringify(board))
-  newBoard[target.row][target.col] =
-    newBoard[touchedPiece.row][touchedPiece.col]
-  newBoard[touchedPiece.row][touchedPiece.col] = undefined
+  const newBoard = updateBoard({
+    board,
+    move: {
+      from: touchedPiece,
+      to: target,
+    },
+  })
   return isInCheck(touchedPiece.color, newBoard)
 }
 
@@ -79,7 +83,7 @@ export const isMenaced = (
   return false
 }
 
-const isPawnDroppable = (
+const canPawnReachTarget = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
   board: BoardData
@@ -113,7 +117,7 @@ const isPawnDroppable = (
   }
 }
 
-const isRookDroppable = (
+const canRookReachTarget = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
   board: BoardData
@@ -127,7 +131,7 @@ const isRookDroppable = (
   )
 }
 
-const isKnightDroppable = (
+const canKnightReachTarget = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
   board: BoardData
@@ -140,7 +144,7 @@ const isKnightDroppable = (
   return isMovementAuthorized && board[row][col]?.color !== color
 }
 
-const isBishopDroppable = (
+const canBishopReachTarget = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
   board: BoardData
@@ -155,7 +159,7 @@ const isBishopDroppable = (
   )
 }
 
-const isQueenDroppable = (
+const canQueenReachTarget = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
   board: BoardData
@@ -172,7 +176,7 @@ const isQueenDroppable = (
   )
 }
 
-const isKingDroppable = (
+const canKingReachTarget = (
   touchedPiece: PieceData & SquareData,
   { row, col }: SquareData,
   board: BoardData

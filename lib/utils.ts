@@ -1,4 +1,5 @@
-import { BoardData } from '@/context/context'
+import { BOARD_SIZE } from './constants'
+import { BoardData, PieceColor, PieceName } from './types'
 import { PieceData, SquareData } from './types'
 
 export const isPathClear = (
@@ -60,4 +61,36 @@ const isDiagClearBetween = (
       return false
   }
   return true
+}
+
+export const updateBoard = ({
+  board,
+  move,
+}: {
+  board: BoardData
+  move: {
+    from: SquareData
+    to: SquareData
+  }
+}): BoardData => {
+  const newBoard = JSON.parse(JSON.stringify(board))
+  newBoard[move.to.row][move.to.col] = newBoard[move.from.row][move.from.col]
+  newBoard[move.from.row][move.from.col] = undefined
+  return newBoard
+}
+
+export const findKing = (
+  color: PieceColor,
+  board: BoardData
+): SquareData | null => {
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    for (let j = 0; j < BOARD_SIZE; j++) {
+      const piece = board[i][j]
+      if (piece?.name === PieceName.King && piece.color === color) {
+        return { row: i, col: j }
+      }
+    }
+  }
+  console.error('King not found', color, board)
+  return null
 }

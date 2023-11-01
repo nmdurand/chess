@@ -10,6 +10,7 @@ import {
 } from '@/lib/types'
 import { checkGameStatus } from '@/lib/isInCheck'
 import React, { FC, ReactNode, useMemo } from 'react'
+import { updateBoard } from '@/lib/utils'
 
 interface ChessContextType {
   state: {
@@ -164,13 +165,17 @@ const contextReducer = (
       }
     case 'MOVE_PIECE':
       const { board, stateHistory, currentColor, currentTurn } = state
-      const newBoard = JSON.parse(JSON.stringify(board))
       const { from, to } = action.payload
-      newBoard[to.row][to.col] = newBoard[from.row][from.col]
-      newBoard[from.row][from.col] = undefined
+      const newBoard = updateBoard({
+        board,
+        move: {
+          from,
+          to,
+        },
+      })
 
       const newKingsPositions = state.kingsPositions
-      if (newBoard[to.row][to.col].name === PieceName.King) {
+      if (newBoard[to.row][to.col]?.name === PieceName.King) {
         newKingsPositions[currentColor] = to
       }
       const newColor =

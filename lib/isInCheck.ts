@@ -1,28 +1,18 @@
 import { BoardData } from '@/lib/types'
-import { BOARD_SIZE } from '@/lib//constants'
-import { GameStatus, PieceColor, PieceName, SquareData } from './types'
+import { BOARD_SIZE } from '@/lib/constants'
+import { GameStatus, PieceColor } from './types'
 import { isDroppable, isMenaced } from './isDroppable'
+import { findKing } from './utils'
 
 export const isInCheck = (color: PieceColor, board: BoardData): boolean => {
   const kingPosition = findKing(color, board)
-  const isKingMenaced = isMenaced(kingPosition, color, board)
-  return isKingMenaced
-}
-
-const findKing = (color: PieceColor, board: BoardData): SquareData => {
-  for (let i = 0; i < BOARD_SIZE; i++) {
-    for (let j = 0; j < BOARD_SIZE; j++) {
-      const piece = board[i][j]
-      if (piece?.name === PieceName.King && piece.color === color) {
-        return { row: i, col: j }
-      }
-    }
-  }
-  throw new Error('King not found')
+  if (!kingPosition) return false // This should not happen
+  return isMenaced(kingPosition, color, board)
 }
 
 export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
   const kingPosition = findKing(color, board)
+  if (!kingPosition) return false
   const isKingMenaced = isMenaced(kingPosition, color, board)
   if (!isKingMenaced) return false
 
