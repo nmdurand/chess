@@ -3,8 +3,8 @@
 import {
   BoardData,
   GameStatus,
+  LocalizedPieceData,
   PieceColor,
-  PieceData,
   PieceName,
   SquareData,
 } from '@/lib/types'
@@ -18,7 +18,7 @@ interface ChessState {
     board: BoardData
     gameStatus: GameStatus
   }[]
-  touchedPiece: (PieceData & SquareData) | null
+  touchedPiece: LocalizedPieceData | null
 }
 
 interface ChessContextType {

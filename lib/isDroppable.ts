@@ -1,10 +1,10 @@
-import { BoardData } from '@/lib/types'
-import { PieceColor, PieceData, PieceName, SquareData } from '@/lib/types'
+import { BoardData, LocalizedPieceData } from '@/lib/types'
+import { PieceColor, PieceName, SquareData } from '@/lib/types'
 import { isPathClear, updateBoard } from './utils'
 import { isInCheck } from './isInCheck'
 
 export const isDroppable = (
-  touchedPiece: (PieceData & SquareData) | null,
+  touchedPiece: LocalizedPieceData | null,
   target: SquareData,
   board: BoardData
 ): boolean => {
@@ -29,7 +29,7 @@ export const isDroppable = (
 }
 
 export const isDroppableAndNotInCheckAfterMove = (
-  touchedPiece: (PieceData & SquareData) | null,
+  touchedPiece: LocalizedPieceData | null,
   target: SquareData,
   board: BoardData
 ): boolean => {
@@ -40,7 +40,7 @@ export const isDroppableAndNotInCheckAfterMove = (
 }
 
 export const isInCheckAfterMove = (
-  touchedPiece: (PieceData & SquareData) | null,
+  touchedPiece: LocalizedPieceData | null,
   target: SquareData,
   board: BoardData
 ): boolean => {
@@ -77,7 +77,7 @@ export const isMenaced = (
 }
 
 const canPawnReachTarget = (
-  touchedPiece: PieceData & SquareData,
+  touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
   board: BoardData
 ): boolean => {
@@ -111,7 +111,7 @@ const canPawnReachTarget = (
 }
 
 const canRookReachTarget = (
-  touchedPiece: PieceData & SquareData,
+  touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
   board: BoardData
 ): boolean => {
@@ -125,7 +125,7 @@ const canRookReachTarget = (
 }
 
 const canKnightReachTarget = (
-  touchedPiece: PieceData & SquareData,
+  touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
   board: BoardData
 ): boolean => {
@@ -138,7 +138,7 @@ const canKnightReachTarget = (
 }
 
 const canBishopReachTarget = (
-  touchedPiece: PieceData & SquareData,
+  touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
   board: BoardData
 ): boolean => {
@@ -153,7 +153,7 @@ const canBishopReachTarget = (
 }
 
 const canQueenReachTarget = (
-  touchedPiece: PieceData & SquareData,
+  touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
   board: BoardData
 ): boolean => {
@@ -170,7 +170,7 @@ const canQueenReachTarget = (
 }
 
 const canKingReachTarget = (
-  touchedPiece: PieceData & SquareData,
+  touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
   board: BoardData
 ): boolean => {

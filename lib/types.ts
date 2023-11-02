@@ -12,17 +12,19 @@ export enum PieceName {
   King = 'king',
 }
 
-export interface PieceData {
+export type PieceData = {
   name: PieceName
   color: PieceColor
 }
 
 export type BoardData = (PieceData | undefined)[][]
 
-export interface SquareData {
+export type SquareData = {
   row: number
   col: number
 }
+
+export type LocalizedPieceData = PieceData & SquareData
 
 export enum GameStatus {
   InProgress = 'inProgress',

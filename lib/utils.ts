@@ -1,9 +1,9 @@
 import { BOARD_SIZE } from './constants'
-import { BoardData, PieceColor, PieceName } from './types'
-import { PieceData, SquareData } from './types'
+import { BoardData, LocalizedPieceData, PieceColor, PieceName } from './types'
+import { SquareData } from './types'
 
 export const isPathClear = (
-  touchedPiece: PieceData & SquareData,
+  touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
   board: BoardData
 ): boolean => {
@@ -47,7 +47,7 @@ const isColClearBetween = (
 }
 
 const isDiagClearBetween = (
-  touchedPiece: PieceData & SquareData,
+  touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
   board: BoardData
 ): boolean => {
