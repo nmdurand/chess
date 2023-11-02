@@ -1,3 +1,6 @@
 # TO DO
 
-- Allow castling
+- Allow castling (canCastle prop in context)
+- Pawn promotion
+- En passant
+
