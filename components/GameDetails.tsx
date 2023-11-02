@@ -8,6 +8,9 @@ export const GameDetails: FC = () => {
   const { state, dispatch } = useContext(ChessContext)
   const { currentTurn, stateHistory } = state
 
+  const currentState = stateHistory[currentTurn]
+  const { gameStatus } = currentState
+
   const rewindHistory = () => {
     dispatch({ type: 'REWIND_HISTORY' })
   }
@@ -45,10 +48,10 @@ export const GameDetails: FC = () => {
         </div>
       </div>
       <div className={'h-10 mt-4 text-3xl'}>
-        {state.gameStatus === GameStatus.CheckMate && (
+        {gameStatus === GameStatus.CheckMate && (
           <div className="text-red-900">Checkmate</div>
         )}
-        {state.gameStatus === GameStatus.Check && (
+        {gameStatus === GameStatus.Check && (
           <div className="text-red-500">Check</div>
         )}
       </div>

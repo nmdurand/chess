@@ -12,7 +12,9 @@ interface ISquare {
 
 export const Square: FC<ISquare> = ({ row, col }) => {
   const { state } = useContext(ChessContext)
-  const { board, touchedPiece, gameStatus, currentTurn } = state
+  const { stateHistory, currentTurn, touchedPiece } = state
+  const currentState = stateHistory[currentTurn]
+  const { board, gameStatus } = currentState
   const currentColor =
     currentTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
   const { name, color } = board[row][col] ?? {}

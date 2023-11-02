@@ -12,28 +12,30 @@ import { checkGameStatus } from '@/lib/isInCheck'
 import React, { FC, ReactNode, useMemo } from 'react'
 import { updateBoard } from '@/lib/utils'
 
-interface ChessContextType {
-  state: {
+interface ChessState {
+  currentTurn: number
+  stateHistory: {
     board: BoardData
-    currentTurn: number
     gameStatus: GameStatus
-    stateHistory: {
-      board: BoardData
-      currentTurn: number
-      gameStatus: GameStatus
-    }[]
-    touchedPiece: (PieceData & SquareData) | null
-  }
-  dispatch: React.Dispatch<BoardActionType>
+  }[]
+  touchedPiece: (PieceData & SquareData) | null
+}
+
+interface ChessContextType {
+  state: ChessState
+  dispatch: React.Dispatch<BoardAction>
 }
 
 export const ChessContext = React.createContext<ChessContextType>({
   state: {
-    board: new Array(8).fill(new Array(8)),
-    stateHistory: [],
+    stateHistory: [
+      {
+        board: new Array(8).fill(new Array(8)),
+        gameStatus: GameStatus.InProgress,
+      },
+    ],
     currentTurn: 0,
     touchedPiece: null,
-    gameStatus: GameStatus.InProgress,
   },
   dispatch: () => {},
 })
@@ -85,7 +87,7 @@ export const INITIAL_BOARD_DATA = [
   ],
 ]
 
-type BoardActionType =
+type BoardAction =
   | {
       type: 'TOUCH_PIECE'
       payload: {
@@ -112,20 +114,7 @@ type BoardActionType =
       type: 'FORWARD_HISTORY'
     }
 
-const contextReducer = (
-  state: {
-    board: BoardData
-    stateHistory: {
-      board: BoardData
-      currentTurn: number
-      gameStatus: GameStatus
-    }[]
-    currentTurn: number
-    touchedPiece: (PieceData & SquareData) | null
-    gameStatus: GameStatus
-  },
-  action: BoardActionType
-) => {
+const contextReducer = (state: ChessState, action: BoardAction): ChessState => {
   switch (action.type) {
     case 'TOUCH_PIECE':
       const pieceAndSquareData = action.payload
@@ -139,7 +128,9 @@ const contextReducer = (
         touchedPiece: null,
       }
     case 'MOVE_PIECE':
-      const { board, stateHistory, currentTurn } = state
+      const { stateHistory, currentTurn } = state
+      const currentState = stateHistory[currentTurn]
+      const { board } = currentState
       const { from, to } = action.payload
       const newBoard = updateBoard({
         board,
@@ -153,27 +144,12 @@ const contextReducer = (
       const newColor = newTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
       const newStatus = checkGameStatus(newColor, newBoard)
 
-      const newState = {
-        board: newBoard,
-        currentTurn: newTurn,
-        gameStatus: newStatus,
-      }
-      // fetch('/api/positionRating', {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     board: newBoard,
-      //     currentColor: newColor,
-      //   }),
-      // }).then(async (res) => {
-      //   const { data: positionRating } = await res.json()
-      //   console.log('>>>>>>', positionRating)
-      // })
-
       return {
-        ...newState,
+        ...state,
+        currentTurn: newTurn,
         stateHistory: [
           ...stateHistory.slice(0, state.currentTurn + 1),
-          newState,
+          { board: newBoard, gameStatus: newStatus },
         ],
         touchedPiece: null,
       }
@@ -181,13 +157,13 @@ const contextReducer = (
       const prevTurn = state.currentTurn - 1
       return {
         ...state,
-        ...state.stateHistory[prevTurn],
+        currentTurn: prevTurn,
       }
     case 'FORWARD_HISTORY':
       const nextTurn = state.currentTurn + 1
       return {
         ...state,
-        ...state.stateHistory[nextTurn],
+        currentTurn: nextTurn,
       }
     default:
       return state
@@ -197,18 +173,17 @@ const contextReducer = (
 export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
   children,
 }) => {
-  const [state, dispatch] = React.useReducer(contextReducer, {
-    board: INITIAL_BOARD_DATA,
+  const [state, dispatch] = React.useReducer<
+    React.Reducer<ChessState, BoardAction>
+  >(contextReducer, {
     stateHistory: [
       {
         board: INITIAL_BOARD_DATA,
-        currentTurn: 0,
         gameStatus: GameStatus.InProgress,
       },
     ],
     currentTurn: 0,
     touchedPiece: null,
-    gameStatus: GameStatus.InProgress,
   })
 
   const globalContextValue = useMemo(
