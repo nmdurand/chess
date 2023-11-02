@@ -2,21 +2,24 @@
 
 import {
   BoardData,
+  CastleData,
   GameStatus,
   LocalizedPieceData,
   PieceColor,
+  PieceData,
   PieceName,
   SquareData,
 } from '@/lib/types'
 import { checkGameStatus } from '@/lib/isInCheck'
 import React, { FC, ReactNode, useMemo } from 'react'
-import { updateBoard } from '@/lib/utils'
+import { updateBoard, updateCastleData } from '@/lib/utils'
 
 interface ChessState {
   currentTurn: number
   stateHistory: {
     board: BoardData
     gameStatus: GameStatus
+    castleData: CastleData
   }[]
   touchedPiece: LocalizedPieceData | null
 }
@@ -32,6 +35,16 @@ export const ChessContext = React.createContext<ChessContextType>({
       {
         board: new Array(8).fill(new Array(8)),
         gameStatus: GameStatus.InProgress,
+        castleData: {
+          [PieceColor.White]: {
+            kingSide: true,
+            queenSide: true,
+          },
+          [PieceColor.Black]: {
+            kingSide: true,
+            queenSide: true,
+          },
+        },
       },
     ],
     currentTurn: 0,
@@ -130,8 +143,15 @@ const contextReducer = (state: ChessState, action: BoardAction): ChessState => {
     case 'MOVE_PIECE':
       const { stateHistory, currentTurn } = state
       const currentState = stateHistory[currentTurn]
-      const { board } = currentState
+      const { board, castleData } = currentState
       const { from, to } = action.payload
+      const movedPiece = board[from.row][from.col]
+
+      const newCastleData = updateCastleData({
+        castleData,
+        movedPiece: { ...(movedPiece as PieceData), ...from },
+      })
+
       const newBoard = updateBoard({
         board,
         move: {
@@ -149,7 +169,7 @@ const contextReducer = (state: ChessState, action: BoardAction): ChessState => {
         currentTurn: newTurn,
         stateHistory: [
           ...stateHistory.slice(0, state.currentTurn + 1),
-          { board: newBoard, gameStatus: newStatus },
+          { board: newBoard, gameStatus: newStatus, castleData: newCastleData },
         ],
         touchedPiece: null,
       }
@@ -180,6 +200,16 @@ export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
       {
         board: INITIAL_BOARD_DATA,
         gameStatus: GameStatus.InProgress,
+        castleData: {
+          [PieceColor.White]: {
+            kingSide: true,
+            queenSide: true,
+          },
+          [PieceColor.Black]: {
+            kingSide: true,
+            queenSide: true,
+          },
+        },
       },
     ],
     currentTurn: 0,

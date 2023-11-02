@@ -31,3 +31,14 @@ export enum GameStatus {
   Check = 'check',
   CheckMate = 'checkMate',
 }
+
+export type CastleData = {
+  [PieceColor.White]: {
+    kingSide: boolean
+    queenSide: boolean
+  }
+  [PieceColor.Black]: {
+    kingSide: boolean
+    queenSide: boolean
+  }
+}

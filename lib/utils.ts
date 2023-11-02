@@ -1,5 +1,11 @@
 import { BOARD_SIZE } from './constants'
-import { BoardData, LocalizedPieceData, PieceColor, PieceName } from './types'
+import {
+  BoardData,
+  CastleData,
+  LocalizedPieceData,
+  PieceColor,
+  PieceName,
+} from './types'
 import { SquareData } from './types'
 
 export const isPathClear = (
@@ -93,4 +99,40 @@ export const findKing = (
   }
   console.error('King not found', color, board)
   return null
+}
+
+export const updateCastleData = ({
+  castleData,
+  movedPiece,
+}: {
+  castleData: CastleData
+  movedPiece: LocalizedPieceData
+}): CastleData => {
+  const newCastleData = { ...castleData }
+  const { name, color, row, col } = movedPiece
+  switch (name) {
+    case PieceName.King: {
+      newCastleData[color] = {
+        kingSide: false,
+        queenSide: false,
+      }
+      break
+    }
+    case PieceName.Rook: {
+      if (color === PieceColor.White) {
+        if (row === 7 && col === 0)
+          newCastleData[PieceColor.White].queenSide = false
+        if (row === 7 && col === 7)
+          newCastleData[PieceColor.White].kingSide = false
+      }
+      if (color === PieceColor.Black) {
+        if (row === 0 && col === 0)
+          newCastleData[PieceColor.Black].queenSide = false
+        if (row === 0 && col === 7)
+          newCastleData[PieceColor.Black].kingSide = false
+      }
+      break
+    }
+  }
+  return newCastleData
 }
