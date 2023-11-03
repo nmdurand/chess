@@ -106,6 +106,13 @@ export const updateBoard = ({
       },
     })
   }
+  if (
+    movedPiece.name === PieceName.Pawn &&
+    (move.to.row === 0 || move.to.row === 7)
+  ) {
+    // Pawn promotion
+    newBoard[move.to.row][move.to.col].name = PieceName.Queen
+  }
   return newBoard
 }
 
