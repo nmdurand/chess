@@ -1,4 +1,4 @@
-import { BoardData, CastleData } from '@/lib/types'
+import { BoardData, CastlingData } from '@/lib/types'
 import { BOARD_SIZE } from '@/lib/constants'
 import { GameStatus, PieceColor } from './types'
 import { isDroppableAndNotInCheckAfterMove, isMenaced } from './isDroppable'
@@ -7,21 +7,21 @@ import { findKing, updateBoard } from './utils'
 export const isInCheck = (
   color: PieceColor,
   board: BoardData,
-  castleData: CastleData
+  castlingData: CastlingData
 ): boolean => {
   const kingPosition = findKing(color, board)
   if (!kingPosition) return false // This should not happen
-  return isMenaced(kingPosition, color, board, castleData)
+  return isMenaced(kingPosition, color, board, castlingData)
 }
 
 export const isCheckMate = (
   color: PieceColor,
   board: BoardData,
-  castleData: CastleData
+  castlingData: CastlingData
 ): boolean => {
   const kingPosition = findKing(color, board)
   if (!kingPosition) return false
-  const isKingMenaced = isMenaced(kingPosition, color, board, castleData)
+  const isKingMenaced = isMenaced(kingPosition, color, board, castlingData)
   if (!isKingMenaced) return false
 
   for (let row = 0; row < BOARD_SIZE; row++) {
@@ -37,7 +37,7 @@ export const isCheckMate = (
                 { ...piece, row, col },
                 { row: targetRow, col: targetCol },
                 board,
-                castleData
+                castlingData
               )
             ) {
               const newBoard = updateBoard({
@@ -47,7 +47,7 @@ export const isCheckMate = (
                   to: { row: targetRow, col: targetCol },
                 },
               })
-              const isKingMenaced = isInCheck(color, newBoard, castleData)
+              const isKingMenaced = isInCheck(color, newBoard, castlingData)
               if (!isKingMenaced) return false
             }
           }
@@ -61,11 +61,11 @@ export const isCheckMate = (
 export const checkGameStatus = (
   color: PieceColor,
   board: BoardData,
-  castleData: CastleData
+  castlingData: CastlingData
 ): GameStatus => {
-  const isKingMenaced = isInCheck(color, board, castleData)
+  const isKingMenaced = isInCheck(color, board, castlingData)
   if (isKingMenaced) {
-    const isCheckMateStatus = isCheckMate(color, board, castleData)
+    const isCheckMateStatus = isCheckMate(color, board, castlingData)
     if (isCheckMateStatus) {
       return GameStatus.CheckMate
     }

@@ -32,7 +32,7 @@ export enum GameStatus {
   CheckMate = 'checkMate',
 }
 
-export type CastleData = {
+export type CastlingData = {
   [PieceColor.White]: {
     kingSide: boolean
     queenSide: boolean

@@ -1,7 +1,7 @@
 import { BOARD_SIZE } from './constants'
 import {
   BoardData,
-  CastleData,
+  CastlingData,
   LocalizedPieceData,
   PieceColor,
   PieceName,
@@ -125,18 +125,18 @@ export const findKing = (
   return null
 }
 
-export const updateCastleData = ({
-  castleData,
+export const updateCastlingData = ({
+  castlingData,
   movedPiece,
 }: {
-  castleData: CastleData
+  castlingData: CastlingData
   movedPiece: LocalizedPieceData
-}): CastleData => {
-  const newCastleData = JSON.parse(JSON.stringify(castleData))
+}): CastlingData => {
+  const newCastlingData = JSON.parse(JSON.stringify(castlingData))
   const { name, color, row, col } = movedPiece
   switch (name) {
     case PieceName.King: {
-      newCastleData[color] = {
+      newCastlingData[color] = {
         kingSide: false,
         queenSide: false,
       }
@@ -145,18 +145,18 @@ export const updateCastleData = ({
     case PieceName.Rook: {
       if (color === PieceColor.White) {
         if (row === 7 && col === 0)
-          newCastleData[PieceColor.White].queenSide = false
+          newCastlingData[PieceColor.White].queenSide = false
         if (row === 7 && col === 7)
-          newCastleData[PieceColor.White].kingSide = false
+          newCastlingData[PieceColor.White].kingSide = false
       }
       if (color === PieceColor.Black) {
         if (row === 0 && col === 0)
-          newCastleData[PieceColor.Black].queenSide = false
+          newCastlingData[PieceColor.Black].queenSide = false
         if (row === 0 && col === 7)
-          newCastleData[PieceColor.Black].kingSide = false
+          newCastlingData[PieceColor.Black].kingSide = false
       }
       break
     }
   }
-  return newCastleData
+  return newCastlingData
 }
