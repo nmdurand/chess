@@ -177,7 +177,6 @@ const contextReducer = (state: ChessState, action: BoardAction): ChessState => {
         ],
         touchedPiece: null,
       }
-      console.log('New state', result)
       return result
     case 'REWIND_HISTORY':
       const prevTurn = state.currentTurn - 1

@@ -205,14 +205,19 @@ const canKingReachTarget = (
     col === 6 &&
     row === fromRow &&
     (board[row][5] === null || board[row][5] === undefined) &&
-    (board[row][6] === null || board[row][6] === undefined)
+    (board[row][6] === null || board[row][6] === undefined) &&
+    !isMenaced({ row, col: 5 }, color, board, castlingData) &&
+    !isMenaced({ row, col: 6 }, color, board, castlingData)
   const isCastlingQueenSideAuthorized =
     castlingData[color].queenSide &&
     col === 2 &&
     row === fromRow &&
     (board[row][3] === null || board[row][3] === undefined) &&
     (board[row][2] === null || board[row][2] === undefined) &&
-    (board[row][1] === null || board[row][1] === undefined)
+    (board[row][1] === null || board[row][1] === undefined) &&
+    !isMenaced({ row, col: 3 }, color, board, castlingData) &&
+    !isMenaced({ row, col: 2 }, color, board, castlingData) &&
+    !isMenaced({ row, col: 1 }, color, board, castlingData)
   return (
     (isMovementAuthorized && board[row][col]?.color !== color) ||
     isCastlingKingSideAuthorized ||
