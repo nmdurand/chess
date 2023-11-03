@@ -5,8 +5,8 @@ import {
   LocalizedPieceData,
   PieceColor,
   PieceName,
+  SquareData,
 } from './types'
-import { SquareData } from './types'
 
 export const isPathClear = (
   touchedPiece: LocalizedPieceData,
@@ -80,8 +80,32 @@ export const updateBoard = ({
   }
 }): BoardData => {
   const newBoard = JSON.parse(JSON.stringify(board))
+  const movedPiece = newBoard[move.from.row][move.from.col]
+  if (!movedPiece) return newBoard
+
   newBoard[move.to.row][move.to.col] = newBoard[move.from.row][move.from.col]
   newBoard[move.from.row][move.from.col] = undefined
+
+  if (movedPiece.name === PieceName.King && move.to.col - move.from.col == 2) {
+    // King side castle
+    return updateBoard({
+      board: newBoard,
+      move: {
+        from: { row: move.to.row, col: 7 },
+        to: { row: move.to.row, col: 5 },
+      },
+    })
+  }
+  if (movedPiece.name === PieceName.King && move.to.col - move.from.col == -2) {
+    // Queen side castle
+    return updateBoard({
+      board: newBoard,
+      move: {
+        from: { row: move.to.row, col: 0 },
+        to: { row: move.to.row, col: 3 },
+      },
+    })
+  }
   return newBoard
 }
 
@@ -108,7 +132,7 @@ export const updateCastleData = ({
   castleData: CastleData
   movedPiece: LocalizedPieceData
 }): CastleData => {
-  const newCastleData = { ...castleData }
+  const newCastleData = JSON.parse(JSON.stringify(castleData))
   const { name, color, row, col } = movedPiece
   switch (name) {
     case PieceName.King: {

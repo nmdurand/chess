@@ -1,12 +1,19 @@
-import { BoardData, LocalizedPieceData } from '@/lib/types'
-import { PieceColor, PieceName, SquareData } from '@/lib/types'
-import { isPathClear, updateBoard } from './utils'
+import {
+  BoardData,
+  CastleData,
+  LocalizedPieceData,
+  PieceColor,
+  PieceName,
+  SquareData,
+} from '@/lib/types'
+import { isPathClear, updateBoard, updateCastleData } from './utils'
 import { isInCheck } from './isInCheck'
 
 export const isDroppable = (
   touchedPiece: LocalizedPieceData | null,
   target: SquareData,
-  board: BoardData
+  board: BoardData,
+  castleData: CastleData
 ): boolean => {
   if (!touchedPiece) return false
   const { name: touchedName } = touchedPiece
@@ -22,7 +29,7 @@ export const isDroppable = (
     case PieceName.Queen:
       return canQueenReachTarget(touchedPiece, target, board)
     case PieceName.King:
-      return canKingReachTarget(touchedPiece, target, board)
+      return canKingReachTarget(touchedPiece, target, board, castleData)
     default:
       return false
   }
@@ -31,18 +38,20 @@ export const isDroppable = (
 export const isDroppableAndNotInCheckAfterMove = (
   touchedPiece: LocalizedPieceData | null,
   target: SquareData,
-  board: BoardData
+  board: BoardData,
+  castleData: CastleData
 ): boolean => {
   return (
-    isDroppable(touchedPiece, target, board) &&
-    !isInCheckAfterMove(touchedPiece, target, board)
+    isDroppable(touchedPiece, target, board, castleData) &&
+    !isInCheckAfterMove(touchedPiece, target, board, castleData)
   )
 }
 
 export const isInCheckAfterMove = (
   touchedPiece: LocalizedPieceData | null,
   target: SquareData,
-  board: BoardData
+  board: BoardData,
+  castleData: CastleData
 ): boolean => {
   if (!touchedPiece) return false
   const newBoard = updateBoard({
@@ -52,13 +61,21 @@ export const isInCheckAfterMove = (
       to: target,
     },
   })
-  return isInCheck(touchedPiece.color, newBoard)
+  const newCastleData = updateCastleData({
+    castleData,
+    movedPiece: {
+      ...touchedPiece,
+      ...target,
+    },
+  })
+  return isInCheck(touchedPiece.color, newBoard, newCastleData)
 }
 
 export const isMenaced = (
   square: SquareData,
   color: PieceColor,
-  board: BoardData
+  board: BoardData,
+  castleData: CastleData
 ): boolean => {
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[i].length; j++) {
@@ -67,7 +84,12 @@ export const isMenaced = (
         (i !== square.row || j !== square.col) &&
         attackingPiece &&
         attackingPiece.color !== color &&
-        isDroppable({ ...attackingPiece, row: i, col: j }, square, board)
+        isDroppable(
+          { ...attackingPiece, row: i, col: j },
+          square,
+          board,
+          castleData
+        )
       ) {
         return true
       }
@@ -172,10 +194,28 @@ const canQueenReachTarget = (
 const canKingReachTarget = (
   touchedPiece: LocalizedPieceData,
   { row, col }: SquareData,
-  board: BoardData
+  board: BoardData,
+  castleData: CastleData
 ): boolean => {
   const { color, row: fromRow, col: fromCol } = touchedPiece
   const isMovementAuthorized =
     Math.abs(row - fromRow) <= 1 && Math.abs(col - fromCol) <= 1
-  return isMovementAuthorized && board[row][col]?.color !== color
+  const isCastlingKingSideAuthorized =
+    castleData[color].kingSide &&
+    col === 6 &&
+    row === fromRow &&
+    (board[row][5] === null || board[row][5] === undefined) &&
+    (board[row][6] === null || board[row][6] === undefined)
+  const isCastlingQueenSideAuthorized =
+    castleData[color].queenSide &&
+    col === 2 &&
+    row === fromRow &&
+    (board[row][3] === null || board[row][3] === undefined) &&
+    (board[row][2] === null || board[row][2] === undefined) &&
+    (board[row][1] === null || board[row][1] === undefined)
+  return (
+    (isMovementAuthorized && board[row][col]?.color !== color) ||
+    isCastlingKingSideAuthorized ||
+    isCastlingQueenSideAuthorized
+  )
 }

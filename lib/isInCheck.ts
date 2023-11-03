@@ -1,19 +1,27 @@
-import { BoardData } from '@/lib/types'
+import { BoardData, CastleData } from '@/lib/types'
 import { BOARD_SIZE } from '@/lib/constants'
 import { GameStatus, PieceColor } from './types'
 import { isDroppableAndNotInCheckAfterMove, isMenaced } from './isDroppable'
 import { findKing, updateBoard } from './utils'
 
-export const isInCheck = (color: PieceColor, board: BoardData): boolean => {
+export const isInCheck = (
+  color: PieceColor,
+  board: BoardData,
+  castleData: CastleData
+): boolean => {
   const kingPosition = findKing(color, board)
   if (!kingPosition) return false // This should not happen
-  return isMenaced(kingPosition, color, board)
+  return isMenaced(kingPosition, color, board, castleData)
 }
 
-export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
+export const isCheckMate = (
+  color: PieceColor,
+  board: BoardData,
+  castleData: CastleData
+): boolean => {
   const kingPosition = findKing(color, board)
   if (!kingPosition) return false
-  const isKingMenaced = isMenaced(kingPosition, color, board)
+  const isKingMenaced = isMenaced(kingPosition, color, board, castleData)
   if (!isKingMenaced) return false
 
   for (let row = 0; row < BOARD_SIZE; row++) {
@@ -28,7 +36,8 @@ export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
               isDroppableAndNotInCheckAfterMove(
                 { ...piece, row, col },
                 { row: targetRow, col: targetCol },
-                board
+                board,
+                castleData
               )
             ) {
               const newBoard = updateBoard({
@@ -38,7 +47,7 @@ export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
                   to: { row: targetRow, col: targetCol },
                 },
               })
-              const isKingMenaced = isInCheck(color, newBoard)
+              const isKingMenaced = isInCheck(color, newBoard, castleData)
               if (!isKingMenaced) return false
             }
           }
@@ -51,11 +60,12 @@ export const isCheckMate = (color: PieceColor, board: BoardData): boolean => {
 
 export const checkGameStatus = (
   color: PieceColor,
-  board: BoardData
+  board: BoardData,
+  castleData: CastleData
 ): GameStatus => {
-  const isKingMenaced = isInCheck(color, board)
+  const isKingMenaced = isInCheck(color, board, castleData)
   if (isKingMenaced) {
-    const isCheckMateStatus = isCheckMate(color, board)
+    const isCheckMateStatus = isCheckMate(color, board, castleData)
     if (isCheckMateStatus) {
       return GameStatus.CheckMate
     }

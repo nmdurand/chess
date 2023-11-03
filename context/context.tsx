@@ -162,9 +162,9 @@ const contextReducer = (state: ChessState, action: BoardAction): ChessState => {
 
       const newTurn = currentTurn + 1
       const newColor = newTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
-      const newStatus = checkGameStatus(newColor, newBoard)
+      const newStatus = checkGameStatus(newColor, newBoard, newCastleData)
 
-      return {
+      const result = {
         ...state,
         currentTurn: newTurn,
         stateHistory: [
@@ -173,6 +173,8 @@ const contextReducer = (state: ChessState, action: BoardAction): ChessState => {
         ],
         touchedPiece: null,
       }
+      console.log('New state', result)
+      return result
     case 'REWIND_HISTORY':
       const prevTurn = state.currentTurn - 1
       return {
@@ -190,7 +192,7 @@ const contextReducer = (state: ChessState, action: BoardAction): ChessState => {
   }
 }
 
-export const ChessProvider: FC<{ children?: ReactNode | undefined }> = ({
+export const ChessProvider: FC<{ children: ReactNode | undefined }> = ({
   children,
 }) => {
   const [state, dispatch] = React.useReducer<

@@ -14,7 +14,7 @@ export const Square: FC<ISquare> = ({ row, col }) => {
   const { state } = useContext(ChessContext)
   const { stateHistory, currentTurn, touchedPiece } = state
   const currentState = stateHistory[currentTurn]
-  const { board, gameStatus } = currentState
+  const { board, gameStatus, castleData } = currentState
   const currentColor =
     currentTurn % 2 === 0 ? PieceColor.White : PieceColor.Black
   const { name, color } = board[row][col] ?? {}
@@ -22,7 +22,8 @@ export const Square: FC<ISquare> = ({ row, col }) => {
   const isPieceDroppable = isDroppableAndNotInCheckAfterMove(
     touchedPiece,
     { row, col },
-    board
+    board,
+    castleData
   )
   const isOriginSquare = touchedPiece?.row === row && touchedPiece?.col === col
 
