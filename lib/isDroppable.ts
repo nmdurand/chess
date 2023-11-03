@@ -203,19 +203,19 @@ const canKingReachTarget = (
   const isCastlingKingSideAuthorized =
     castlingData[color].kingSide &&
     col === 6 &&
-    row === fromRow &&
-    (board[row][5] === null || board[row][5] === undefined) &&
+    row === fromRow && // row is 0 or 7 if the king is in initial position
+    (board[row][5] === null || board[row][5] === undefined) && // no piece between king and rook
     (board[row][6] === null || board[row][6] === undefined) &&
-    !isMenaced({ row, col: 5 }, color, board, castlingData) &&
+    !isMenaced({ row, col: 5 }, color, board, castlingData) && // no square between king and rook is menaced
     !isMenaced({ row, col: 6 }, color, board, castlingData)
   const isCastlingQueenSideAuthorized =
     castlingData[color].queenSide &&
     col === 2 &&
-    row === fromRow &&
-    (board[row][3] === null || board[row][3] === undefined) &&
+    row === fromRow && // row is 0 or 7 if the king is in initial position
+    (board[row][3] === null || board[row][3] === undefined) && // no piece between king and rook
     (board[row][2] === null || board[row][2] === undefined) &&
     (board[row][1] === null || board[row][1] === undefined) &&
-    !isMenaced({ row, col: 3 }, color, board, castlingData) &&
+    !isMenaced({ row, col: 3 }, color, board, castlingData) && // no square between king and rook is menaced
     !isMenaced({ row, col: 2 }, color, board, castlingData) &&
     !isMenaced({ row, col: 1 }, color, board, castlingData)
   return (
